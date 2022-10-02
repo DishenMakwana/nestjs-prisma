@@ -11,7 +11,9 @@ import * as basicAuth from 'express-basic-auth';
 async function bootstrap() {
   const logger: Logger = new Logger('App');
 
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    logger: ['error', 'warn', 'debug', 'verbose'],
+  });
 
   app.useStaticAssets(join(__dirname, '..', '..', 'public'));
   app.setBaseViewsDir(join(__dirname, '..', '..', 'public', 'pages'));
@@ -34,6 +36,7 @@ async function bootstrap() {
     .setVersion('1.0')
     .addBearerAuth()
     .build();
+
   const docsPath = ['/api/docs'];
   app.use(
     docsPath,
@@ -42,6 +45,7 @@ async function bootstrap() {
       users: { admin: 'Admin@123' },
     }),
   );
+
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup(docsPath[0], app, document);
 

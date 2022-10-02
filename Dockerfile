@@ -1,4 +1,4 @@
-FROM node:12.22.10-alpine AS builder
+FROM node:16-alpine AS builder
 
 WORKDIR /app
 
@@ -13,7 +13,7 @@ RUN npm run build
 
 RUN npm prune --production
 
-FROM node:12.22.10-alpine
+FROM node:16-alpine
 RUN apk update && apk add \
     bash
 

@@ -2,11 +2,14 @@ version: '3'
 services:
   api:
     container_name: nestjs-template
-    image: registry.gitlab.com/project_name:v0.0.1
+    build:
+      context: .
+      dockerfile: Dockerfile
     restart: always
+    networks: [proxy, internal]
     environment:
       - PORT=80
-      - DATABASE_URL=mysql://username:password@connection_url/database_name
+      - DATABASE_URL=mysql://root:123@localhost:3306/nestjs
       - ACCESS_TOKEN_SECRET=ACCESSTOKENSECRET
       - ACCESS_TOKEN_EXPIRES_IN=7d
       - MAIL_FROM=no-reply@nestjs.com
@@ -19,4 +22,22 @@ services:
       - RUN_MIGRATION=false
       - RUN_SEED=false
     ports:
-      - '5000:80'
+      - '5000:5000'
+
+  soketi:
+    container_name: soketi
+    image: quay.io/soketi/soketi:0.17-16-alpine
+    restart: always
+    environment:
+      - SOKETI_DEBUG=1
+      - DEFAULT_APP_ID=demo
+      - DEFAULT_APP_KEY=asdf64
+      - DEFAULT_APP_SECRET=ads4dsa4ads
+      - METRICS_SERVER_PORT=9601
+    ports:
+      - '6001:6001'
+      - '9601:9601'
+
+networks:
+  internal: {}
+  proxy: { external: true }
