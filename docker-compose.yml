@@ -38,6 +38,20 @@ services:
       - '6001:6001'
       - '9601:9601'
 
+  watchtower:
+    container_name: watchtower
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/timezone:/etc/timezone:ro
+      - /root/.docker/config.json:/config.json
+    environment:
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_INCLUDE_RESTARTING=true
+      - WATCHTOWER_POLL_INTERVAL=60
+      - WATCHTOWER_DEBUG=false
+    restart: unless-stopped
+
 networks:
   internal: {}
   proxy: { external: true }

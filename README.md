@@ -51,3 +51,7 @@ Enter below credentials:
 username: admin
 password: Admin@123
 ```
+
+### Watchtower
+
+[Watchtower](https://containrrr.dev/watchtower)
