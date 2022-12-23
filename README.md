@@ -55,3 +55,9 @@ password: Admin@123
 ### Watchtower
 
 [Watchtower](https://containrrr.dev/watchtower)
+
+### Docker multi-stage build
+
+```bash
+docker buildx build --push --platform linux/amd64,linux/arm64,linux/arm/v7 -t dishenmakwana/nestjs-prisma .
+```

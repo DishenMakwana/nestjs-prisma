@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     restart: always
-    networks: [proxy, internal]
+    # networks: [proxy, internal]
     environment:
       - PORT=80
       - DATABASE_URL=mysql://root:123@localhost:3306/nestjs
@@ -22,6 +22,7 @@ services:
       - RUN_MIGRATION=false
       - RUN_SEED=false
     ports:
+      # if you use proxy network, you don't need to expose ports
       - '5000:5000'
 
   soketi:
@@ -44,14 +45,15 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /etc/timezone:/etc/timezone:ro
-      - /root/.docker/config.json:/config.json
+      - ~/.docker/config.json:/config.json
     environment:
       - WATCHTOWER_CLEANUP=true
       - WATCHTOWER_INCLUDE_RESTARTING=true
-      - WATCHTOWER_POLL_INTERVAL=60
-      - WATCHTOWER_DEBUG=false
+      - WATCHTOWER_POLL_INTERVAL=600
+      - WATCHTOWER_DEBUG=true
     restart: unless-stopped
-
-networks:
-  internal: {}
-  proxy: { external: true }
+    labels:
+      - 'com.centurylinklabs.watchtower.enable=true'
+# networks:
+# internal: {}
+# proxy: { external: true }

@@ -2,10 +2,33 @@ services:
   - docker:dind
 
 stages:
-  - build
+  - deploy
+  - hotfix
+
+.before_checkout_script: &before_checkout_script
+  - apk update && apk add git && apk add python3
+  - git remote set-url origin https://CI_PUSH_TOKEN:${CI_PUSH_TOKEN}@gitlab.com/dishenmakwana/nestjs-api.git
+  
+.after_checkout_script: &after_checkout_script
+  - git config --local user.email 'dishenmakwana.dm@gmail.com'
+  - git config --local user.name 'DISHEN'
+  - echo "$CI_REGISTRY"
+  - echo "$CI_DEPLOY_PASSWORD" | docker login $CI_REGISTRY --username $CI_DEPLOY_USER --password-stdin
+  - image_name=nestjs-prisma
+
+.script_before: &script_before
+  - ls
+  - ls scripts
+  - last_commit_message=`git log -1 --pretty=%B | cat`
+  - echo "$last_commit_message"
+  - python3 scripts/version_bump.py --commit="$last_commit_message"
+  - version=`cat VERSION`
+  - git add -A
+  - git commit -m "version $version [skip ci]"
+  - git tag -a "v$version" -m "version $version [skip ci]"
 
 build-development:
-  stage: build
+  stage: deploy
   image: docker
   variables:
     DOCKER_TLS_CERTDIR: ""
@@ -13,26 +36,13 @@ build-development:
   services:
     - docker:dind
   before_script:
-    - apk update && apk add git && apk add python3
-    - git remote set-url origin https://CI_PUSH_TOKEN:${CI_PUSH_TOKEN}@gitlab.com/dishenmakwana/nestjs-api.git
+    - *before_checkout_script
     - git checkout development
-    - git config --local user.email 'gitlab_runner@gmail.com'
-    - git config --local user.name 'Gitlab Runner'
-    - echo "$CI_REGISTRY"
-    - echo "$CI_DEPLOY_PASSWORD" | docker login $CI_REGISTRY --username $CI_DEPLOY_USER --password-stdin
-    - image_name=nestjs-api
+    - *after_checkout_script
   script:
     - git config pull.rebase false
     - git pull origin development
-    - ls
-    - ls scripts
-    - last_commit_message=`git log -1 --pretty=%B | cat`
-    - echo "$last_commit_message"
-    - python3 scripts/version_bump.py --commit="$last_commit_message"
-    - version=`cat VERSION`
-    - git add -A
-    - git commit -m "version $version [skip ci]"
-    - git tag -a "v$version" -m "version $version [skip ci]"
+    - *script_before
     - docker build -t $DOCKER_REGISTRY/$image_name:latest-development .
     - docker tag $DOCKER_REGISTRY/$image_name:latest-development $DOCKER_REGISTRY/$image_name:$version
     - docker push $DOCKER_REGISTRY/$image_name:$version
@@ -43,7 +53,7 @@ build-development:
     - development
 
 build-staging:
-  stage: build
+  stage: deploy
   image: docker
   variables:
     DOCKER_TLS_CERTDIR: ""
@@ -51,14 +61,9 @@ build-staging:
   services:
     - docker:dind
   before_script:
-    - apk update && apk add git && apk add python3
-    - git remote set-url origin https://CI_PUSH_TOKEN:${CI_PUSH_TOKEN}@gitlab.com/dishenmakwana/nestjs-api.git
+    - *before_checkout_script
     - git checkout staging
-    - git config --local user.email 'gitlab_runner@gmail.com'
-    - git config --local user.name 'Gitlab Runner'
-    - echo "$CI_REGISTRY"
-    - echo "$CI_DEPLOY_PASSWORD" | docker login $CI_REGISTRY --username $CI_DEPLOY_USER --password-stdin
-    - image_name=nestjs-api
+    - *after_checkout_script
   script:
     - git config pull.rebase false
     - git pull origin staging
@@ -72,7 +77,7 @@ build-staging:
     - staging
 
 build-production:
-  stage: build
+  stage: deploy
   image: docker
   variables:
     DOCKER_TLS_CERTDIR: ""
@@ -80,17 +85,42 @@ build-production:
   services:
     - docker:dind
   before_script:
-    - apk update && apk add git && apk add python3
-    - git remote set-url origin https://CI_PUSH_TOKEN:${CI_PUSH_TOKEN}@gitlab.com/dishenmakwana/nestjs-api.git
+    - *before_checkout_script
     - git checkout production
-    - git config --local user.email 'gitlab_runner@gmail.com'
-    - git config --local user.name 'Gitlab Runner'
-    - echo "$CI_REGISTRY"
-    - echo "$CI_DEPLOY_PASSWORD" | docker login $CI_REGISTRY --username $CI_DEPLOY_USER --password-stdin
-    - image_name=nestjs-api
+    - *after_checkout_script
   script:
     - git config pull.rebase false
     - git pull origin production
+    - docker build -t $DOCKER_REGISTRY/$image_name:latest-production .
+    - docker tag $DOCKER_REGISTRY/$image_name:latest-production
+    - docker push $DOCKER_REGISTRY/$image_name:latest-production
+    - git push
+    - git push --tags
+
+  only:
+    - production
+
+hotfix_production:
+  stage: hotfix
+  image: docker
+  variables:
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_HOST: "tcp://docker:2375"
+  services:
+    - docker:dind
+  before_script:
+    - *before_checkout_script
+    - git checkout production
+    - *after_checkout_script
+  script:
+    - git config pull.rebase false
+    - git pull origin production
+    - git fetch
+    - for branch in "development" "staging"; do
+    - git checkout $branch
+    - git merge origin/production -m "Merged hotfix from production"
+    - git push origin $branch
+    - done
     - docker build -t $DOCKER_REGISTRY/$image_name:latest-production .
     - docker tag $DOCKER_REGISTRY/$image_name:latest-production
     - docker push $DOCKER_REGISTRY/$image_name:latest-production
