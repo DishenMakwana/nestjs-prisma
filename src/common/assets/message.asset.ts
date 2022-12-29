@@ -52,6 +52,6 @@ export const message = {
     INVALID_CRED: 'Invalid credential.',
     INVALID_CODE: 'Your account has already been verified.',
     INVALID_TOKEN: 'Token Mismatch.',
-    SUCCESS_VERFIY_OTP: 'Otp verified successfully.',
+    SUCCESS_VERIFY_OTP: 'Otp verified successfully.',
   },
 };

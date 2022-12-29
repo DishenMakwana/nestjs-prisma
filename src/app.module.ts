@@ -10,6 +10,7 @@ import { join } from 'path';
 import { AWSModule } from './aws/aws.module';
 import { NotificationModule } from './notification/notification.module';
 import { FileModule } from './file/file.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -19,11 +20,22 @@ import { FileModule } from './file/file.module';
     HelperModule,
     MailModule,
     AWSModule,
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', '..', 'public'),
-    }),
+    // ServeStaticModule.forRoot({
+    //   rootPath: join(__dirname, '..', '..', 'public'),
+    // }),
     NotificationModule,
     FileModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      cache: true,
+      envFilePath: [
+        './.env',
+        './.env.dev',
+        './.env.prod',
+        './.env.stag',
+        './.env.test',
+      ],
+    }),
   ],
   providers: [
     {

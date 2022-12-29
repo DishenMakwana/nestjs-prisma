@@ -3,7 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PrismaService } from '../../database/prisma.service';
 import { Request } from 'express';
-import { ACCESS_TOKEN_SECRET } from 'src/common/assets/constant.asset';
+import { ConfigService } from '@nestjs/config';
 
 type Payload = {
   sub: string;
@@ -12,11 +12,14 @@ type Payload = {
 
 @Injectable()
 export class ATStrategy extends PassportStrategy(Strategy, 'jwt') {
-  constructor(private readonly prisma: PrismaService) {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly configService: ConfigService,
+  ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: ACCESS_TOKEN_SECRET,
+      secretOrKey: configService.get<string>('ACCESS_TOKEN_SECRET'),
       passReqToCallback: true,
     });
   }

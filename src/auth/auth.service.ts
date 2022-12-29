@@ -10,11 +10,8 @@ import { JwtService } from '@nestjs/jwt';
 import { UserTransformer } from '../user/user.transformer';
 import { HelperService } from '../helper/helper.service';
 import { MailService } from '../mail/mail.service';
-import {
-  ACCESS_TOKEN_EXPIRES_IN,
-  ACCESS_TOKEN_SECRET,
-} from 'src/common/assets/constant.asset';
 import { Role } from '@prisma/client';
+import { ConfigService } from '@nestjs/config';
 
 export type Tokens = {
   access_token: string;
@@ -28,6 +25,7 @@ export class AuthService {
     private readonly userTransformer: UserTransformer,
     private readonly helper: HelperService,
     private readonly mailService: MailService,
+    private readonly configService: ConfigService,
   ) {}
 
   async login(email: string, password: string, role: Role) {
@@ -238,8 +236,8 @@ export class AuthService {
           email,
         },
         {
-          secret: ACCESS_TOKEN_SECRET,
-          expiresIn: ACCESS_TOKEN_EXPIRES_IN,
+          secret: this.configService.get<string>('ACCESS_TOKEN_SECRET'),
+          expiresIn: this.configService.get<string>('ACCESS_TOKEN_EXPIRES_IN'),
         },
       ),
     ]);

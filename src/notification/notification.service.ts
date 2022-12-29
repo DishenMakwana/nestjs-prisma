@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import * as https from 'https';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class NotificationService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly configService: ConfigService,
+  ) {}
 
   sendNotification(
     headings: any,
@@ -22,7 +26,7 @@ export class NotificationService {
     }
 
     const data = {
-      app_id: process.env.PUSH_NOTIFICATION_APP_ID,
+      app_id: this.configService.get<string>('PUSH_NOTIFICATION_APP_ID'),
       contents: {
         en: contents,
       },
@@ -37,7 +41,9 @@ export class NotificationService {
 
     const headers = {
       'Content-Type': 'application/json; charset=utf-8',
-      Authorization: `Basic ${process.env.PUSH_NOTIFICATION_API_KEY}`,
+      Authorization: `Basic ${this.configService.get<string>(
+        'PUSH_NOTIFICATION_API_KEY',
+      )}`,
     };
 
     const options = {

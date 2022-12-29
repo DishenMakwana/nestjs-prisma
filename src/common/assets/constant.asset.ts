@@ -1,11 +1,5 @@
-const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
-const ACCESS_TOKEN_EXPIRES_IN = process.env.ACCESS_TOKEN_EXPIRES_IN;
-const FRONTEND_BASE_URL = process.env.FRONTEND_BASE_URL;
-const API_BASE_URL = process.env.API_BASE_URL;
-
-export {
-  FRONTEND_BASE_URL,
-  API_BASE_URL,
-  ACCESS_TOKEN_SECRET,
-  ACCESS_TOKEN_EXPIRES_IN,
+export const NODE_ENVIRONMENT = {
+  DEVELOPMENT: 'development',
+  PRODUCTION: 'production',
+  STAGING: 'staging',
 };

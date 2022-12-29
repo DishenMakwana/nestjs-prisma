@@ -1,11 +1,20 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { User } from '@prisma/client';
-import { API_BASE_URL } from 'src/common/assets/constant.asset';
-const logo = `${API_BASE_URL}/assets/logo.svg`;
+
 @Injectable()
 export class MailService {
-  constructor(private mailService: MailerService) {}
+  private readonly logo: string;
+
+  constructor(
+    private readonly mailService: MailerService,
+    private readonly configService: ConfigService,
+  ) {
+    this.logo = `${this.configService.get<string>(
+      'API_BASE_URL',
+    )}/assets/logo.png`;
+  }
 
   async sendForgotPasswordEmail(user: User, otp: string) {
     await this.mailService.sendMail({
@@ -15,13 +24,15 @@ export class MailService {
       context: {
         name: user.name,
         otp,
-        logo,
+        logo: this.logo,
       },
     });
   }
 
   async sendUserConfirmation(user: User, code: string) {
-    const activationUrl = `${API_BASE_URL}/api/auth/user-activation/${code}`;
+    const activationUrl = `${this.configService.get<string>(
+      'API_BASE_URL',
+    )}/api/auth/user-activation/${code}`;
 
     await this.mailService.sendMail({
       to: user.email,
@@ -30,7 +41,7 @@ export class MailService {
       context: {
         name: user.name,
         url: activationUrl,
-        logo,
+        logo: this.logo,
       },
     });
   }

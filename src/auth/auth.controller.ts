@@ -19,7 +19,6 @@ import {
 } from './dto/auth.dto';
 import { SuccessMessage } from '../common/decorators/success-message.decorator';
 import { message } from '../common/assets/message.asset';
-import { FRONTEND_BASE_URL } from 'src/common/assets/constant.asset';
 import { ApiTags } from '@nestjs/swagger';
 import { apiDesc } from '../common/assets/api-description..asset';
 import { ApiSummary } from 'src/common/decorators/api-summary.decorator';
@@ -69,7 +68,7 @@ export class AuthController {
     return this.authService.forgotPassword(email);
   }
 
-  @SuccessMessage(message.user.SUCCESS_VERFIY_OTP)
+  @SuccessMessage(message.user.SUCCESS_VERIFY_OTP)
   @ApiSummary(apiDesc.auth.verifyOtp)
   @Post('verify-otp')
   async verifyOtp(@Body() body: VerifyOtpDto) {
@@ -96,13 +95,11 @@ export class AuthController {
         success: true,
         message: message.user.VERIFY_EMAIL,
         user: response,
-        frontEndUrl: FRONTEND_BASE_URL,
       };
     } catch (error) {
       return {
         success: false,
         message: error.message,
-        frontEndUrl: FRONTEND_BASE_URL,
       };
     }
   }
