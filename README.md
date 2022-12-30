@@ -61,3 +61,28 @@ password: Admin@123
 ```bash
 docker buildx build --push --platform linux/amd64,linux/arm64,linux/arm/v7 -t dishenmakwana/nestjs-prisma .
 ```
+
+#### Run debugger
+
+- add .vscode/launch.json file
+
+```bash
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Attach",
+      "port": 9229,
+      "type": "node",
+      "request": "attach",
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ]
+}
+```
+
+#### Generate project documentation
+
+```bash
+npx @compodoc/compodoc -p tsconfig.json -s
+```

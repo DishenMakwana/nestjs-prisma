@@ -6,7 +6,6 @@ import {
   Post,
   Render,
   Req,
-  SetMetadata,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
@@ -104,7 +103,6 @@ export class AuthController {
     }
   }
 
-  @SetMetadata('isPublic', true)
   @Auth(Role.admin)
   @Get('get-user')
   async getUser(@Req() req) {
