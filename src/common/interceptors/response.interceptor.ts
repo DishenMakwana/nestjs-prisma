@@ -31,19 +31,12 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T>> {
 
     return next.handle().pipe(
       map((data) => {
-        const success_message =
-          (typeof data === 'object' ? data.message : undefined) ??
-          this.reflector.get<string[]>('success_message', context.getHandler());
+        const success_message = this.reflector.get<string[]>(
+          'success_message',
+          context.getHandler(),
+        );
 
         data = camelize(data);
-
-        data =
-          typeof data === 'object'
-            ? {
-                ...data,
-                message: undefined,
-              }
-            : data;
 
         return {
           success: true,
