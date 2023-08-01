@@ -7,7 +7,7 @@ import { fileMimetypeFilter } from '../filters';
 export function ApiFile(
   fieldName = 'file',
   required = false,
-  localOptions?: MulterOptions,
+  localOptions?: MulterOptions
 ) {
   return applyDecorators(
     UseInterceptors(FileInterceptor(fieldName, localOptions)),
@@ -23,7 +23,7 @@ export function ApiFile(
           },
         },
       },
-    }),
+    })
   );
 }
 

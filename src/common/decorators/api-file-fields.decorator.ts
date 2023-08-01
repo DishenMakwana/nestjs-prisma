@@ -9,19 +9,20 @@ import {
   ReferenceObject,
   SchemaObject,
 } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
+import { fileMimetypeFilter } from '../filters';
 
 export type UploadFields = MulterField & { required?: boolean };
 
 export function ApiFileFields(
   uploadFields: UploadFields[],
-  localOptions?: MulterOptions,
+  localOptions?: MulterOptions
 ) {
   const bodyProperties: Record<string, SchemaObject | ReferenceObject> =
     Object.assign(
       {},
       ...uploadFields.map((field) => {
         return { [field.name]: { type: 'string', format: 'binary' } };
-      }),
+      })
     );
   const apiBody = ApiBody({
     schema: {
@@ -34,6 +35,18 @@ export function ApiFileFields(
   return applyDecorators(
     UseInterceptors(FileFieldsInterceptor(uploadFields, localOptions)),
     ApiConsumes('multipart/form-data'),
-    apiBody,
+    apiBody
   );
+}
+
+export function ApiImageFiles(uploadFields: UploadFields[]) {
+  return ApiFileFields(uploadFields, {
+    fileFilter: fileMimetypeFilter('image'),
+  });
+}
+
+export function ApiPdfFiles(uploadFields: UploadFields[]) {
+  return ApiFileFields(uploadFields, {
+    fileFilter: fileMimetypeFilter('pdf'),
+  });
 }

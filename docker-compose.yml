@@ -1,59 +1,70 @@
-version: '3'
+version: '3.8'
 services:
   api:
-    container_name: nestjs-template
+    container_name: nestjs-api
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ./
+      dockerfile: dockerfile
     restart: always
-    # networks: [proxy, internal]
     environment:
-      - PORT=80
-      - DATABASE_URL=mysql://root:123@localhost:3306/nestjs
-      - ACCESS_TOKEN_SECRET=ACCESSTOKENSECRET
+      - APP_NAME=Nestjs API
+      - NODE_ENV=development
+      - TZ=Asia/Kolkata
+      - NEST_LOG=false
+      - API_ROUTE_LOG=true
+      - PROTECT_SWAGGER=false
+      - PRISMA_LOG=false
+      - PORT=5003
+      - ENABLE_CORS=true
+      - DATABASE_URL=mysql://root:123@host.docker.internal:3306/nestjs
+      - JWT_ALGORITHM=ES512
+      - ACCESS_TOKEN_SECRET="-----BEGIN EC PRIVATE KEY-----MIHcAgEBBEIBPs2XodNwMDAPiE1ONL3rUdfGrlr/7YZIzBo4Xdn0Nblj7bm99B7Rxw0z4oohhHSjzERA3HOBUt0W/FDJopS6t7OgBwYFK4EEACOhgYkDgYYABADZkRfZwoKvKAOTF/SHB8FvCeozjXl2dhTjAizeRJiyvcM84RzOQPu6zusSCcXc4rOzwY2XX4eZqU3zzjJAYOp9vQGOjYu0S5xefGqVAUhkYgv7aQuPIXsPL9FNFkUZwbJg90384k6+HnmXFLm5JePNLDwbWByVTDyjDXPW1d6RuHY4dA==-----END EC PRIVATE KEY-----"
       - ACCESS_TOKEN_EXPIRES_IN=7d
-      - MAIL_FROM=no-reply@nestjs.com
+      - MAIL_FROM=info@nestjs.com
       - MAIL_HOST=smtp.mailtrap.io
       - MAIL_PORT=2525
-      - MAIL_USER=username
-      - MAIL_PASSWORD=password
+      - MAIL_USER=fba000ad0f4767
+      - MAIL_PASSWORD=4f5d49826af6ae
       - MAIL_SECURE=false
-      - FRONTEND_BASE_URL=http://127.0.0.1:8080
-      - RUN_MIGRATION=false
-      - RUN_SEED=false
-    ports:
-      # if you use proxy network, you don't need to expose ports
-      - '5000:5000'
+      - MAIL_IGNORE_TLS=true
+      - MAIL_LOGGER=true
+      - FRONTEND_BASE_URL=http://127.0.0.1:3000
+      - API_BASE_URL=http://localhost:5003
+      - ADMIN_EMAIL=admin@gmail.com
+      - ADMIN_PASSWORD=Admin@123
+      - SALT_ROUNDS=12
+      - DEFAULT_PASSWORD=Admin@123
+      - AWS_S3_BUCKET_NAME=nestjs-dev
+      - AWS_ACCESS_KEY_ID=AKIAWPAF22N2KLPJZRPM
+      - AWS_SECRET_ACCESS_KEY=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
+      - AWS_S3_REGION=us-east-1
+      - CDN_URL=https://d2o4x8gy9scbgf.cloudfront.net
+      - SWAGGER_USER=admin
+      - SWAGGER_PASSWORD=Admin@123
+      - SWAGGER_UI_THEME=dark
+      - SUPPORT_EMAIL=support@nestjs.com
+      - ONESIGNAL_APP_ID=29bc1c00-5d89-43f0-8b89-4bef6b545017
+      - ONESIGNAL_REST_API_KEY=ZTUxYWZlMDItZTQ0NS00MmY4LWFmNDktODBlOTc1ODNmODEz
+      - APP_MIN_VERSION=v0.0.0
+      - EVENT_LOCKIN_TIME=60
+      - EVENT_REMINDER_TIME=300
+      - EVENT_CHECKIN_REMINDER_TIME=60
+      - SOKETI_APP_ID=KrHBrG0Jpx
+      - SOKETI_APP_KEY=1A452AnQZ95d1485c
+      - SOKETI_APP_SECRET=v514k356a8qj475a7426h5
+      - SOKETI_APP_CLUSTER=m12
+      - SOKETI_APP_ENC_KEY=oSt85/kvTmrpy2iVuCD+aZuZjIkTup0xVPO9xHqMBQU=
+      - SOKETI_APP_HOST=dev.nestjs.com
+      # - SOKETI_APP_PORT=6001
+      - SOKETI_APP_USE_TLS=true
+      - GOOGLE_CLIENT_URL=https://www.googleapis.com/oauth2/v3/userinfo
+      - APPLE_CLIENTID=com.nestjs.app
+      - DOMAIN_NAME=atliq.com
+      - APP_TIME_ZONE=America/New_York
+      - THROTTLE_TTL=60
+      - THROTTLE_LIMIT=100
 
-  soketi:
-    container_name: soketi
-    image: quay.io/soketi/soketi:0.17-16-alpine
-    restart: always
-    environment:
-      - SOKETI_DEBUG=1
-      - DEFAULT_APP_ID=demo
-      - DEFAULT_APP_KEY=asdf64
-      - DEFAULT_APP_SECRET=ads4dsa4ads
-      - METRICS_SERVER_PORT=9601
     ports:
-      - '6001:6001'
-      - '9601:9601'
-
-  watchtower:
-    container_name: watchtower
-    image: containrrr/watchtower
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /etc/timezone:/etc/timezone:ro
-      - ~/.docker/config.json:/config.json
-    environment:
-      - WATCHTOWER_CLEANUP=true
-      - WATCHTOWER_INCLUDE_RESTARTING=true
-      - WATCHTOWER_POLL_INTERVAL=600
-      - WATCHTOWER_DEBUG=true
-    restart: unless-stopped
-    labels:
-      - 'com.centurylinklabs.watchtower.enable=true'
-# networks:
-# internal: {}
-# proxy: { external: true }
+      - '5003:5003'
+    stdin_open: true
+    tty: true

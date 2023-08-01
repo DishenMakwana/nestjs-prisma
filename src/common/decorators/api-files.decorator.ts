@@ -7,7 +7,7 @@ export function ApiFiles(
   fieldName = 'files',
   required = false,
   maxCount = 10,
-  localOptions?: MulterOptions,
+  localOptions?: MulterOptions
 ) {
   return applyDecorators(
     UseInterceptors(FilesInterceptor(fieldName, maxCount, localOptions)),
@@ -26,6 +26,6 @@ export function ApiFiles(
           },
         },
       },
-    }),
+    })
   );
 }

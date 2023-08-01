@@ -1,111 +1,161 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  Render,
-  Req,
-} from '@nestjs/common';
+import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import {
-  ForgotPasswordDto,
+  ApiOperationResponse,
+  Auth,
+  CurrentUser,
+  UserRequestInfo,
+} from '../common/decorators';
+import { apiDesc, message } from '../common/assets';
+import {
+  ChangePasswordDto,
+  EmailResentDto,
   LoginDto,
-  RegisterDto,
-  ResendEmailDto,
-  ResetPasswordDto,
-  VerifyOtpDto,
-} from './dto/auth.dto';
-import { SuccessMessage } from '../common/decorators/success-message.decorator';
-import { message } from '../common/assets/message.asset';
-import { ApiTags } from '@nestjs/swagger';
-import { apiDesc } from '../common/assets/api-description..asset';
-import { ApiSummary } from 'src/common/decorators/api-summary.decorator';
+  OTPDto,
+  PasswordResetDto,
+  SocialLoginDto,
+  SocialRegisterDto,
+  UserRegisterDto,
+  VerifyOTPDto,
+} from './dto';
 import { Role } from '@prisma/client';
-import { Auth } from 'src/common/decorators/auth.decorator';
+import { AuthUserType, RequestInfo } from '../common/types';
 
-@ApiTags('auth')
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @SuccessMessage(message.user.SUCCESS_LOGIN)
-  @ApiSummary(apiDesc.auth.login)
+  @ApiOperationResponse(
+    apiDesc.auth.login,
+    HttpStatus.OK,
+    message.user.SUCCESS_LOGIN
+  )
   @Post('login')
-  async login(@Body() body: LoginDto) {
-    const { email, password, role } = body;
-    return this.authService.login(email, password, role);
+  async login(
+    @UserRequestInfo() requestInfo: RequestInfo,
+    @Body()
+    body: LoginDto
+  ) {
+    return this.authService.login(body, requestInfo);
   }
 
-  @SuccessMessage(message.user.SUCCESS_REGISTER)
-  @ApiSummary(apiDesc.auth.register)
-  @Post('register')
-  async register(@Body() body: RegisterDto) {
-    const { firstName, lastName, email, password, mobile } = body;
-    return this.authService.register(
-      firstName,
-      lastName,
-      email,
-      password,
-      mobile,
-    );
+  @Auth({
+    roles: [Role.admin, Role.user],
+  })
+  @ApiOperationResponse(
+    apiDesc.auth.logout,
+    HttpStatus.OK,
+    message.user.SUCCESS_LOGOUT
+  )
+  @Post('logout')
+  async logout(
+    @UserRequestInfo() requestInfo: RequestInfo,
+    @CurrentUser() authUser: AuthUserType
+  ) {
+    return this.authService.logout(authUser, requestInfo);
   }
 
-  @SuccessMessage(message.user.RESEND_EMAIL)
-  @ApiSummary(apiDesc.auth.resendEmail)
-  @Post('resend-email')
-  async resendEmail(@Body() body: ResendEmailDto) {
-    const { email } = body;
-    return this.authService.sendEmail(email);
-  }
-
-  @SuccessMessage(message.user.SUCCESS_SEND_OTP)
-  @ApiSummary(apiDesc.auth.forgotPassword)
+  @ApiOperationResponse(
+    apiDesc.auth.forgotPassword,
+    HttpStatus.OK,
+    message.user.FORGOT_PASSWORD
+  )
   @Post('forgot-password')
-  async forgotPassword(@Body() body: ForgotPasswordDto) {
-    const { email } = body;
-    return this.authService.forgotPassword(email);
+  async forgotPassword(
+    @UserRequestInfo() requestInfo: RequestInfo,
+    @Body() body: OTPDto
+  ) {
+    return this.authService.forgotPassword(body, requestInfo);
   }
 
-  @SuccessMessage(message.user.SUCCESS_VERIFY_OTP)
-  @ApiSummary(apiDesc.auth.verifyOtp)
+  @ApiOperationResponse(
+    apiDesc.auth.verifyOTP,
+    HttpStatus.OK,
+    message.user.OTP_VERIFIED
+  )
   @Post('verify-otp')
-  async verifyOtp(@Body() body: VerifyOtpDto) {
-    const { email, otp } = body;
-    return this.authService.verifyOtp(email, otp);
+  async verifyOTP(@Body() body: VerifyOTPDto) {
+    return this.authService.verifyOTP(body);
   }
 
-  @SuccessMessage(message.user.SUCCESS_PASSWORD_RESET)
-  @ApiSummary(apiDesc.auth.resetPassword)
+  @ApiOperationResponse(
+    apiDesc.auth.resetPassword,
+    HttpStatus.OK,
+    message.user.SUCCESS_PASSWORD_CHANGED
+  )
   @Post('reset-password')
-  async resetPassword(@Body() body: ResetPasswordDto) {
-    const { email, otp, password } = body;
-    return this.authService.resetPassword(email, otp, password);
+  async resetPassword(@Body() body: PasswordResetDto) {
+    return this.authService.resetPassword(body);
   }
 
-  @Render('user-activation')
-  @ApiSummary(apiDesc.auth.userActivation)
-  @Get('user-activation/:code')
-  async activationUser(@Param('code') code: string) {
-    try {
-      const response = await this.authService.userActivation(code);
-
-      return {
-        success: true,
-        message: message.user.VERIFY_EMAIL,
-        user: response,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        message: error.message,
-      };
-    }
+  @Auth({
+    roles: [Role.admin, Role.user],
+  })
+  @ApiOperationResponse(
+    apiDesc.auth.changePassword,
+    HttpStatus.OK,
+    message.user.SUCCESS_PASSWORD_CHANGED
+  )
+  @Post('change-password')
+  async changePassword(
+    @Body() body: ChangePasswordDto,
+    @CurrentUser() authUser: AuthUserType
+  ) {
+    return this.authService.changePassword(authUser, body);
   }
 
-  @Auth(Role.admin)
-  @Get('get-user')
-  async getUser(@Req() req) {
-    return req.user;
+  @ApiOperationResponse(
+    apiDesc.auth.resentVerificationEmail,
+    HttpStatus.OK,
+    message.user.RESENT_VERIFICATION_EMAIL
+  )
+  @Post('verification/resent')
+  async resentVerificationEmail(@Body() body: EmailResentDto) {
+    return this.authService.resentVerificationEmail(body);
+  }
+
+  @ApiOperationResponse(
+    apiDesc.auth.register,
+    HttpStatus.OK,
+    message.user.REGISTRATION_SUCCESSFULLY
+  )
+  @Post('register')
+  async register(@Body() body: UserRegisterDto) {
+    return this.authService.register(body);
+  }
+
+  @ApiOperationResponse(
+    apiDesc.auth.verifyUser,
+    HttpStatus.OK,
+    message.user.VERIFICATION_SUCCESSFULLY
+  )
+  @Post('verification')
+  async verifyUser(@Body() body: VerifyOTPDto) {
+    return this.authService.verifyUser(body);
+  }
+
+  @ApiOperationResponse(
+    apiDesc.auth.socialRegister,
+    HttpStatus.OK,
+    message.user.SUCCESS_SOCIAL_REGISTER
+  )
+  @Post('social-register')
+  async socialRegister(@Body() body: SocialRegisterDto) {
+    return this.authService.socialRegister(body);
+  }
+
+  @ApiOperationResponse(
+    apiDesc.auth.socialLogin,
+    HttpStatus.OK,
+    message.user.SUCCESS_SOCIAL_LOGIN
+  )
+  @Post('social-login')
+  async socialLogin(
+    @UserRequestInfo() requestInfo: RequestInfo,
+    @Body() body: SocialLoginDto
+  ) {
+    return this.authService.socialLogin(body, requestInfo);
   }
 }

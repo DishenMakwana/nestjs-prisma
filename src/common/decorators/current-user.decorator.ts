@@ -1,19 +1,17 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { AuthUserType } from '../types';
 
-type Payload = {
-  id: number;
-  email: string;
-};
-
-type CurrentUserResponse = string | number | Payload;
+type CurrentUserResponse = string | number | AuthUserType;
 
 export const CurrentUser = createParamDecorator(
   (
     data: string | undefined,
-    context: ExecutionContext,
+    context: ExecutionContext
   ): CurrentUserResponse => {
     const request = context.switchToHttp().getRequest();
+
     if (!data) return request.user;
+
     return request.user[data];
-  },
+  }
 );

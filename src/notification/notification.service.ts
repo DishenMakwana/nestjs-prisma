@@ -1,72 +1,56 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../database/prisma.service';
-import * as https from 'https';
-import { ConfigService } from '@nestjs/config';
+import { Injectable, Logger } from '@nestjs/common';
+import { OneSignalService } from 'onesignal-api-client-nest';
+import { NotificationByDeviceBuilder } from 'onesignal-api-client-core';
+
+type inputType = {
+  limit: number;
+  offset: number;
+  kind: number;
+};
 
 @Injectable()
 export class NotificationService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly configService: ConfigService,
-  ) {}
+  constructor(private readonly oneSignalService: OneSignalService) {}
 
-  sendNotification(
-    headings: any,
-    contents: any,
-    include_external_user_ids: any,
-    object = null,
-    send_after = null,
+  async createNotification(
+    headings: string,
+    contents: string,
+    includeExternalUserIds: string[],
+    data: any = null,
+    sendAfter: number = null
   ) {
-    let objectData;
+    const logger: Logger = new Logger(NotificationService.name);
 
-    if (object) {
-      objectData = {
-        ...object,
-      };
+    try {
+      const input = new NotificationByDeviceBuilder()
+        .setIncludeExternalUserIds(includeExternalUserIds)
+        .notification()
+        .setHeadings({ en: headings })
+        .setContents({ en: contents })
+        .setDelivery({ send_after: sendAfter })
+        .setAttachments({ data })
+        .setPlatform({
+          channel_for_external_user_ids: 'push',
+        })
+        .build();
+
+      const response = await this.oneSignalService.createNotification(input);
+
+      logger.log(response);
+    } catch (error) {
+      logger.error({ error });
     }
+  }
 
-    const data = {
-      app_id: this.configService.get<string>('PUSH_NOTIFICATION_APP_ID'),
-      contents: {
-        en: contents,
-      },
-      headings: {
-        en: headings,
-      },
-      channel_for_external_user_ids: 'push',
-      include_external_user_ids: include_external_user_ids,
-      send_after,
-      data: objectData,
-    };
+  async viewNotifications(input: inputType) {
+    return this.oneSignalService.viewNotifications(input);
+  }
 
-    const headers = {
-      'Content-Type': 'application/json; charset=utf-8',
-      Authorization: `Basic ${this.configService.get<string>(
-        'PUSH_NOTIFICATION_API_KEY',
-      )}`,
-    };
+  async viewNotification(id: string) {
+    return this.oneSignalService.viewNotification({ id });
+  }
 
-    const options = {
-      host: 'onesignal.com',
-      port: 443,
-      path: '/api/v1/notifications',
-      method: 'POST',
-      headers: headers,
-    };
-
-    const req = https.request(options, function (res) {
-      res.on('data', function (data) {
-        console.log('Response:');
-        console.log(JSON.parse(data));
-      });
-    });
-
-    req.on('error', function (e) {
-      console.log('ERROR:');
-      console.log(e);
-    });
-
-    req.write(JSON.stringify(data));
-    req.end();
+  async cancelNotification(id: string) {
+    return this.oneSignalService.cancelNotification({ id });
   }
 }

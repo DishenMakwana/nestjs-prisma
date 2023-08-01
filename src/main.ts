@@ -2,118 +2,133 @@ import 'dotenv/config';
 import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { AppModule } from './app.module';
-import { PrismaService } from './database/prisma.service';
+import { AppModule, modules } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
+import { urlencoded } from 'express';
 import * as basicAuth from 'express-basic-auth';
-import { NODE_ENVIRONMENT } from './common/assets';
-import { ConfigService } from '@nestjs/config';
 import * as morgan from 'morgan';
-import { json, urlencoded } from 'express';
+import { PrismaService } from './database/prisma.service';
+import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
+import * as requestIp from 'request-ip';
 
 async function bootstrap() {
-  // Logger
-  const logger: Logger = new Logger('NestJS App');
+  const logger: Logger = new Logger(process.env.APP_NAME);
 
-  // Create NestJS App
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger:
-      process.env.NODE_ENV === NODE_ENVIRONMENT.DEVELOPMENT
+      process.env.NEST_LOG === 'true'
         ? ['error', 'warn', 'debug', 'verbose', 'log']
         : ['error', 'warn', 'debug', 'verbose'],
   });
 
-  // Get Config Service for env variables
   const configService = app.get(ConfigService);
 
-  // log requests
-  if (configService.get<string>('NODE_ENV') === NODE_ENVIRONMENT.DEVELOPMENT) {
+  if (configService.getOrThrow<string>('API_ROUTE_LOG') === 'true') {
     app.use(morgan('dev'));
   }
 
-  // Url Prefix
   app.setGlobalPrefix('api');
 
   // Versioning
   app.enableVersioning({
     type: VersioningType.URI,
-    // defaultVersion: '1',
+    defaultVersion: '1',
     prefix: 'v',
   });
 
-  // setup static assets
   app.useStaticAssets(join(__dirname, '..', '..', 'public'));
   app.setBaseViewsDir(join(__dirname, '..', '..', 'public', 'pages'));
 
-  // setup template engine
   app.setViewEngine('hbs');
 
-  // setup validation
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
-    }),
+      whitelist: true,
+    })
   );
 
-  // setup database
   const databaseService: PrismaService = app.get(PrismaService);
-  databaseService.enableShutdownHooks(app);
+  await databaseService.enableShutdownHooks(app);
 
-  // setup swagger
-  const config = new DocumentBuilder()
-    .setTitle('NestJS API')
-    .setDescription('Cheetah Broker Swagger Docs.')
-    .setVersion('1.0')
-    // .setLicense('MIT', 'https://opensource.org/licenses/MIT')
-    // .addServer('http://localhost:5001')
-    // .addServer('https://api.cheetahbroker.com')
-    .addBearerAuth({
-      type: 'http',
-      scheme: 'bearer',
-      bearerFormat: 'access_token',
-    })
+  let config: any = new DocumentBuilder()
+    .setTitle(configService.getOrThrow<string>('APP_NAME'))
+    .setDescription(
+      'Application dedicated to college/universities to organize events'
+    )
     .setExternalDoc('Postman Collection', '/api/docs-json')
-    .build();
+    .setVersion('1.0')
+    .addBearerAuth();
+
+  for (const key in modules) {
+    const module = modules[key];
+
+    config = config.addTag(key, module.name, {
+      description: module.name,
+      url: `/api/${key}`,
+    });
+
+    const options = new DocumentBuilder()
+      .setTitle(`${module.name}`)
+      .setDescription(`The ${module.name} API description`)
+      .setVersion('1.0')
+      .setExternalDoc('Postman Collection', `/api/${key}-json`)
+      .addBearerAuth()
+      .build();
+
+    const document = SwaggerModule.createDocument(app, options, {
+      include: [module],
+    });
+
+    SwaggerModule.setup(`api/${key}`, app, document);
+  }
+
+  config = config.build();
 
   const docsPath = '/api/docs';
 
-  if (configService.get<string>('NODE_ENV') === NODE_ENVIRONMENT.PRODUCTION) {
+  if (configService.getOrThrow<string>('PROTECT_SWAGGER') === 'true') {
     const user = {};
-    user[configService.get<string>('SWAGGER_USER')] =
-      configService.get<string>('SWAGGER_PASSWORD');
+    user[configService.getOrThrow<string>('SWAGGER_USER')] =
+      configService.getOrThrow<string>('SWAGGER_PASSWORD');
 
     app.use(
       docsPath,
       basicAuth({
         challenge: true,
         users: user,
-      }),
+      })
     );
   }
 
   const document = SwaggerModule.createDocument(app, config);
+
   SwaggerModule.setup(docsPath, app, document);
 
-  // setup body parser
-  app.use(json({ limit: '50mb' }));
+  app.useBodyParser('json', { limit: '50mb' });
   app.use(urlencoded({ limit: '50mb', extended: true }));
 
-  // enable helmet
   app.use(helmet());
+  app.use(requestIp.mw());
 
-  // enable cors
-  const enableCors = configService.get<boolean>('ENABLE_CORS');
+  const enableCors = configService.getOrThrow<boolean>('ENABLE_CORS');
   if (enableCors) {
-    app.enableCors();
+    app.enableCors({
+      origin: '*',
+      methods: ['GET', 'POST', 'PUT', 'DELETE'],
+      // maxAge: 3600, // Specify the maximum cache duration in seconds
+    });
   }
 
-  await app.listen(configService.get<number>('PORT') || 5000);
+  await app.listen(configService.getOrThrow<number>('PORT') || 5000, '0.0.0.0');
 
+  logger.debug(`Application is running on: ${await app.getUrl()}`);
   logger.debug(
-    `Server is running on port ${configService.get<number>('PORT') || 5000}`,
+    `Swagger docs: ${configService.getOrThrow<string>(
+      'API_BASE_URL'
+    )}${docsPath}`
   );
 }
-
 bootstrap();

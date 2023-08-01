@@ -4,54 +4,50 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PrismaService } from '../../database/prisma.service';
 import { Request } from 'express';
 import { ConfigService } from '@nestjs/config';
-
-type Payload = {
-  sub: string;
-  email: string;
-};
+import { AuthUserType, Payload } from '../../common/types';
 
 @Injectable()
 export class ATStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly configService: ConfigService,
+    private readonly configService: ConfigService
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('ACCESS_TOKEN_SECRET'),
       passReqToCallback: true,
+      secretOrKey: configService.getOrThrow<string>('ACCESS_TOKEN_SECRET'),
+      expiresIn: configService.getOrThrow<string>('ACCESS_TOKEN_EXPIRES_IN'),
     });
   }
 
-  async validate(request: Request, payload: Payload) {
+  async validate(request: Request, payload: Payload): Promise<AuthUserType> {
     const access_token = request
       .get('authorization')
       .replace('Bearer ', '')
       .trim();
 
-    /**
-     * Check if access_token is valid or you can write a custom check here
-     */
-
     const user = await this.prisma.user.findUnique({
       where: {
         id: Number(payload.sub),
+        email: payload.email,
+      },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        role: true,
+        is_verified: true,
+        is_onboarded: true,
       },
     });
 
-    if (!user || !user.status) {
+    if (!user || !user.is_verified || !user.is_onboarded) {
       throw new UnauthorizedException();
     }
 
-    const payloadData = {
-      id: Number(payload.sub),
-      role: user.role,
-      email: payload.email,
-    };
-
     return {
-      ...payloadData,
+      ...user,
       access_token,
     };
   }

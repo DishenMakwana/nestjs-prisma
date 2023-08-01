@@ -7,10 +7,13 @@ export function ApiListQuery(): MethodDecorator {
     ApiQuery({ name: 'page', required: true }),
     ApiQuery({ name: 'search', required: false }),
     ApiQuery({ name: 'sort', required: false }),
-    ApiQuery({ name: 'order', required: false }),
+    ApiQuery({ name: 'order', required: false })
   );
 }
 
-export function ApiDetailQuery(): MethodDecorator {
-  return applyDecorators(ApiQuery({ name: 'app', required: false }));
+export function ApiFilterDateQuery(): MethodDecorator {
+  return applyDecorators(
+    ApiQuery({ name: 'startDate', required: false }),
+    ApiQuery({ name: 'endDate', required: false })
+  );
 }

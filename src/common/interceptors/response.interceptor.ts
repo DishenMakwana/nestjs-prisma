@@ -10,10 +10,11 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Observable, throwError } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, catchError } from 'rxjs/operators';
 import { message } from '../assets/message.asset';
 import * as camelize from 'camelize';
-import { catchError } from 'rxjs/operators';
+import { ConfigService } from '@nestjs/config';
+import { NODE_ENVIRONMENT } from '../assets';
 
 export interface Response<T> {
   data: T;
@@ -21,19 +22,22 @@ export interface Response<T> {
 
 @Injectable()
 export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T>> {
-  constructor(private readonly reflector: Reflector) {}
+  constructor(
+    private readonly reflector: Reflector,
+    private readonly configService: ConfigService
+  ) {}
 
   intercept(
     context: ExecutionContext,
-    next: CallHandler,
+    next: CallHandler
   ): Observable<Response<T>> {
-    const logger: Logger = new Logger('Response Interceptor');
+    const logger: Logger = new Logger(ResponseInterceptor.name);
 
     return next.handle().pipe(
       map((data) => {
         const success_message = this.reflector.get<string[]>(
           'success_message',
-          context.getHandler(),
+          context.getHandler()
         );
 
         data = camelize(data);
@@ -48,36 +52,60 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T>> {
       catchError((error) => {
         if (error.status) {
           return throwError(() => {
-            logger.error(error.message, error.stack);
+            logger.error({ error });
 
-            return new HttpException(
-              {
-                statusCode: error.status,
-                success: false,
-                message: error.message,
-                stack: error.stack,
-                error: error,
-              },
-              error.status,
-            );
+            const message =
+              typeof error.response.message === 'string'
+                ? error.response.message
+                : error.response.message[0];
+
+            const response = {
+              statusCode: error.status,
+              success: false,
+              message: message,
+              exception: error.response.error,
+              stack: error.stack,
+              error: error,
+            };
+
+            if (
+              this.configService.getOrThrow<string>('NODE_ENV') ===
+              NODE_ENVIRONMENT.PRODUCTION
+            ) {
+              return new HttpException(
+                { ...response, stack: undefined, error: undefined },
+                error.status
+              );
+            }
+
+            return new HttpException(response, error.status);
           });
         }
 
         return throwError(() => {
-          logger.error(error.message, error.stack);
+          logger.error({ error });
 
-          return new InternalServerErrorException(
-            {
-              statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-              success: false,
-              message: error.message,
-              stack: error.stack,
-              error: error,
-            },
-            error.status,
-          );
+          const response = {
+            statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+            success: false,
+            message: error.message,
+            stack: error.stack,
+            error: error,
+          };
+
+          if (
+            this.configService.getOrThrow<string>('NODE_ENV') ===
+            NODE_ENVIRONMENT.PRODUCTION
+          ) {
+            return new InternalServerErrorException(
+              { ...response, stack: undefined, error: undefined },
+              error.status
+            );
+          }
+
+          return new InternalServerErrorException(response, error.status);
         });
-      }),
+      })
     );
   }
 }

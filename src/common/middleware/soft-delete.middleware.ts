@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
+import * as moment from 'moment';
 
-export const softDeleteModels = ['User', 'Job'];
+export const softDeleteModels = ['User'];
 
 export const PrismaSoftDeleteMiddleware = (prisma: PrismaClient) => {
   /**
@@ -12,15 +13,17 @@ export const PrismaSoftDeleteMiddleware = (prisma: PrismaClient) => {
         // Delete queries
         // Change action to an update
         params.action = 'update';
-        params.args['data'] = { deleted_at: new Date() };
+        params.args['data'] = { deleted_at: moment.utc().format() };
       }
       if (params.action == 'deleteMany') {
         // Delete many queries
         params.action = 'updateMany';
         if (params.args.data != undefined) {
-          params.args.data['deleted_at'] = new Date();
+          params.args.data['deleted_at'] = moment.utc().format();
         } else {
-          params.args['data'] = { deleted_at: new Date() };
+          params.args['data'] = {
+            deleted_at: moment.utc().format(),
+          };
         }
       }
     }
@@ -39,14 +42,42 @@ export const PrismaSoftDeleteMiddleware = (prisma: PrismaClient) => {
         // Add 'deleted' filter
         // ID filter maintained
         //   params.args.where["deleted"] = false;
-        params.args['where'] = {
-          ...params.args['where'],
-          deleted_at: null,
-        };
+        if (params.args.where.deleted_at == undefined) {
+          params.args['where'] = {
+            ...params.args['where'],
+            deleted_at: null,
+          };
+        }
       }
       if (params.action == 'findMany' || params.action == 'findFirst') {
         // Find many queries
-        if (params.args.where != false) {
+        if (params.args.where == undefined) {
+          params.args = {};
+          params.args['where'] = {
+            deleted_at: null,
+          };
+        } else if (params.args.where) {
+          if (params.args.where.deleted_at == undefined) {
+            // Exclude deleted records if they have not been explicitly requested
+            params.args['where'] = {
+              ...params.args['where'],
+              deleted_at: null,
+            };
+          }
+        } else {
+          params.args['where'] = {
+            ...params.args['where'],
+            deleted_at: null,
+          };
+        }
+      }
+      if (params.action == 'count') {
+        if (params.args == undefined) {
+          params.args = {};
+          params.args['where'] = {
+            deleted_at: null,
+          };
+        } else if (params.args.where) {
           if (params.args.where.deleted_at == undefined) {
             // Exclude deleted records if they have not been explicitly requested
             params.args['where'] = {
@@ -83,10 +114,16 @@ export const PrismaSoftDeleteMiddleware = (prisma: PrismaClient) => {
       }
       if (params.action == 'updateMany') {
         if (params.args.where != undefined) {
-          params.args['where'] = {
-            ...params.args['where'],
-            deleted_at: null,
-          };
+          if (params.args.data.deleted_at == undefined) {
+            params.args['where'] = {
+              ...params.args['where'],
+            };
+          } else {
+            params.args['where'] = {
+              ...params.args['where'],
+              deleted_at: null,
+            };
+          }
         } else {
           params.args['where'] = {
             ...params.args['where'],

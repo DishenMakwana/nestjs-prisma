@@ -1,11 +1,15 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["filterJson", "extendedIndexes"]
+  provider   = "prisma-client-js"
+  engineType = "binary"
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 enum Role {
@@ -13,30 +17,108 @@ enum Role {
   user
 }
 
-model User {
-  id        Int      @id @default(autoincrement())
-  firstName String
-  lastName  String
-  name      String
-  email     String   @unique
-  mobile    String?
-  password  String
-  status    Boolean  @default(false)
-  role      Role     @default(user)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  code      Code?
+model Action {
+  id         Int      @id
+  name       String   @unique @db.VarChar(255)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
-  @@map("users")
+  logs Log[]
+
+  @@map("actions")
 }
 
-model Code {
-  id        Int      @id @default(autoincrement())
-  code      String   @unique
-  userId    Int      @unique
-  user      User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model EmailLog {
+  id         Int      @id @default(autoincrement())
+  to         String   @db.VarChar(1024)
+  subject    String   @db.VarChar(255)
+  created_at DateTime @default(now())
 
-  @@map("codes")
+  @@map("email_logs")
+}
+
+model NotificationLog {
+  id         Int      @id @default(autoincrement())
+  user_ids   String   @db.VarChar(512)
+  title      String   @db.VarChar(512)
+  payload    Json     @db.Json
+  created_at DateTime @default(now())
+
+  @@map("notification_logs")
+}
+
+model PusherLog {
+  id           Int      @id @default(autoincrement())
+  event_id     Int
+  event_name   String   @db.VarChar(255)
+  channel_name String   @db.VarChar(255)
+  data         Json     @db.Json
+  created_at   DateTime @default(now())
+
+  @@map("pusher_logs")
+}
+
+model Log {
+  id           Int      @id @default(autoincrement())
+  action_id    Int
+  user_id      Int
+  request_data Json?    @db.Json
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  actions Action @relation(fields: [action_id], references: [id], onDelete: Cascade)
+  users   User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("logs")
+}
+
+model Config {
+  id         Int      @id @default(autoincrement())
+  key        String   @unique @db.VarChar(255)
+  value      String   @db.VarChar(255)
+  slug       String?  @db.VarChar(255)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("configs")
+}
+
+model ApiVersionControl {
+  id               Int       @id @default(autoincrement())
+  app_version      String    @unique @db.VarChar(255)
+  api_version      String    @db.VarChar(255)
+  is_force_update  Boolean   @default(false)
+  release_date     DateTime?
+  end_support_date DateTime?
+  description      String?   @db.VarChar(512)
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @default(now()) @updatedAt
+
+  @@map("api_version_controls")
+}
+
+model User {
+  id                 Int       @id @default(autoincrement())
+  email              String    @unique
+  password           String?   @db.VarChar(255)
+  provider_id        String?   @db.VarChar(255)
+  provider           String?   @db.VarChar(255)
+  username           String?   @db.VarChar(255)
+  first_name         String?   @db.VarChar(255)
+  last_name          String?   @db.VarChar(255)
+  role               Role      @default(user)
+  logo               String?   @db.VarChar(255)
+  code               String?   @db.VarChar(255)
+  is_onboarded       Boolean   @default(false)
+  is_social_register Boolean   @default(false)
+  is_verified        Boolean   @default(false)
+  created_at         DateTime  @default(now())
+  updated_at         DateTime  @default(now()) @updatedAt
+  deleted_at         DateTime?
+
+  log Log[]
+
+  @@index([email])
+  @@index([username])
+  @@map("users")
 }

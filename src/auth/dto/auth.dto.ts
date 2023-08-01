@@ -1,90 +1,217 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Role } from '@prisma/client';
-import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Length,
+  Matches,
+} from 'class-validator';
+import { message } from '../../common/assets';
+import { Transform, Type } from 'class-transformer';
 
 export class LoginDto {
-  @ApiProperty()
+  @ApiProperty({
+    default: 'admin@gmail.com',
+  })
   @IsNotEmpty()
   @IsString()
-  email: string;
+  @Length(6, 255)
+  @IsEmail({}, { message: message.validate.email })
+  email: 'string';
 
-  @ApiProperty()
+  @ApiProperty({
+    default: 'Admin@123',
+  })
   @IsNotEmpty()
   @IsString()
   password: string;
+}
 
+export class OTPDto {
   @ApiProperty({
-    description: 'Role can be admin | user',
-    default: 'admin',
+    default: 'admin@gmail.com',
   })
   @IsNotEmpty()
-  @IsEnum(Role)
-  role: Role;
+  @IsString()
+  @Length(6, 255)
+  @IsEmail({}, { message: message.validate.email })
+  email: string;
+}
+
+export class EmailResentDto extends OTPDto {}
+
+export class VerifyOTPDto extends OTPDto {
+  @ApiProperty({
+    default: '1234',
+  })
+  @IsNotEmpty()
+  @IsString()
+  otp: string;
+}
+
+export class ChangePasswordDto {
+  @ApiProperty({
+    default: 'Admin@123',
+  })
+  @IsNotEmpty()
+  @IsString()
+  @Matches(/^(?=.*\d)(?=.*[!@#$%.^&*])(?=.*[a-z])(?=.*[A-Z]).{6,}$/, {
+    message: message.validate.password,
+  })
+  currentPassword: string;
+
+  @ApiProperty({
+    default: 'Admin@123',
+  })
+  @IsNotEmpty()
+  @IsString()
+  @Length(6, 255)
+  @Matches(/^(?=.*\d)(?=.*[!@#$%.^&*])(?=.*[a-z])(?=.*[A-Z]).{6,}$/, {
+    message: message.validate.password,
+  })
+  newPassword: string;
+}
+
+export class PasswordResetDto {
+  @ApiProperty({
+    default: 'admin@gmail.com',
+  })
+  @IsNotEmpty()
+  @IsString()
+  @Length(6, 255)
+  @IsEmail({}, { message: message.validate.email })
+  email: string;
+
+  @ApiProperty({
+    default: '1234',
+  })
+  @IsNotEmpty()
+  @IsString()
+  otp: string;
+
+  @ApiProperty({
+    default: 'Admin@123',
+  })
+  @IsNotEmpty()
+  @IsString()
+  @Length(6, 255)
+  @Matches(/^(?=.*\d)(?=.*[!@#$%.^&*])(?=.*[a-z])(?=.*[A-Z]).{6,}$/, {
+    message: message.validate.password,
+  })
+  password: string;
 }
 
 export class RegisterDto {
-  @ApiProperty()
+  @ApiProperty({
+    default: 'John',
+  })
   @IsNotEmpty()
   @IsString()
+  @Length(2, 255)
   firstName: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    default: 'Doe',
+  })
   @IsNotEmpty()
   @IsString()
+  @Length(2, 255)
   lastName: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    default: 'johndoe',
+  })
   @IsNotEmpty()
   @IsString()
+  @Length(2, 255)
+  username: string;
+
+  @ApiProperty({
+    default: 'user@gmail.com',
+  })
+  @IsNotEmpty()
+  @IsString()
+  @Length(6, 255)
+  @IsEmail({}, { message: message.validate.email })
   email: string;
+}
 
-  @ApiProperty()
-  mobile: string;
-
-  @ApiProperty()
+export class UserRegisterDto extends RegisterDto {
+  @ApiProperty({
+    default: 'Admin@123',
+  })
   @IsNotEmpty()
   @IsString()
+  @Length(6, 255)
+  @Matches(/^(?=.*\d)(?=.*[!@#$%.^&*])(?=.*[a-z])(?=.*[A-Z]).{6,}$/, {
+    message: message.validate.password,
+  })
   password: string;
 }
 
-export class ResendEmailDto {
-  @ApiProperty()
+export class SocialLoginDto {
+  @ApiProperty({
+    default: 'google',
+  })
   @IsNotEmpty()
   @IsString()
-  email: string;
-}
-export class ForgotPasswordDto {
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  email: string;
-}
+  provider: string;
 
-export class VerifyOtpDto {
-  @ApiProperty()
+  @ApiProperty({
+    default: '5ad1a2res',
+  })
   @IsNotEmpty()
   @IsString()
-  email: string;
+  providerId: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    default: '',
+  })
   @IsNotEmpty()
   @IsString()
-  otp: string;
+  accessToken: string;
 }
 
-export class ResetPasswordDto {
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  email: string;
+export class SocialRegisterDto extends RegisterDto {}
 
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  otp: string;
+export class ListQueryDto {
+  @ApiProperty({
+    default: 10,
+    required: false,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @Transform(({ value }) => parseInt(value))
+  limit?: number;
 
-  @ApiProperty()
-  @IsNotEmpty()
+  @ApiProperty({
+    default: 0,
+    required: false,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @Transform(({ value }) => parseInt(value))
+  page?: number;
+
+  @ApiProperty({
+    required: false,
+  })
+  @IsOptional()
   @IsString()
-  password: string;
+  search?: string;
+
+  @ApiProperty({
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  sort?: string;
+
+  @ApiProperty({
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  order?: string;
 }

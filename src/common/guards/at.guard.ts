@@ -10,11 +10,11 @@ export class ATGuard extends AuthGuard('jwt') {
   }
 
   canActivate(
-    context: ExecutionContext,
+    context: ExecutionContext
   ): boolean | Promise<boolean> | Observable<boolean> {
     const isPublic = this.reflector.get<boolean>(
       'isPublic',
-      context.getHandler(),
+      context.getHandler()
     );
 
     if (isPublic) {
