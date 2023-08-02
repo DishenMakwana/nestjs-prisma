@@ -35,7 +35,7 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T>> {
 
     return next.handle().pipe(
       map((data) => {
-        const success_message = this.reflector.get<string[]>(
+        const success_message = this.reflector.get<string>(
           'success_message',
           context.getHandler()
         );
@@ -44,8 +44,18 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T>> {
 
         return {
           success: true,
-          message: success_message ?? message.SUCCESS_RESPONSE,
-          data: data,
+          message:
+            data !== undefined
+              ? Object.hasOwn(data, 'message')
+                ? data.message
+                : success_message
+              : message.SUCCESS_RESPONSE,
+          data:
+            data !== undefined
+              ? Object.hasOwn(data, 'data')
+                ? data.data
+                : data
+              : {},
         };
       }),
 

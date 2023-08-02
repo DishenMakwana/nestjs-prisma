@@ -6,7 +6,7 @@ import {
 import { PrismaService } from '../database/prisma.service';
 import { Prisma, Role } from '@prisma/client';
 import { AdminTransformer } from './admin.transformer';
-import { message } from '../common/assets';
+import { CustomResponse, message } from '../common/assets';
 import { Buffer } from 'buffer';
 import { OrderType, PayloadType } from '../common/types';
 import { UserQueryType, UserSortColumnType } from './types';
@@ -128,7 +128,10 @@ export class AdminService {
 
     if (!userDetail) throw new NotFoundException(message.user.USER_NOT_FOUND);
 
-    return this.adminTransformer.transformUserDetail(userDetail);
+    return CustomResponse(
+      this.adminTransformer.transformUserDetail(userDetail),
+      message.admin.USER_DETAILS
+    );
   }
 
   async updateConfig(body: UpdateAllConfigDto) {
