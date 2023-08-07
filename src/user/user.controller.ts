@@ -19,7 +19,7 @@ import {
 import { Role } from '@prisma/client';
 import { apiDesc, message } from '../common/assets';
 import { AuthUserType } from '../common/types';
-import { FileUploadDto, UpdateProfileDto, UserPhotoDto } from './dto';
+import { FileUploadDto, UpdateProfileDto, UserDto, UserPhotoDto } from './dto';
 
 @ApiTags('User')
 @Controller('user')
@@ -114,5 +114,25 @@ export class UserController {
     files: FileUploadDto
   ) {
     return this.userService.testAWSUploadFile(userId, path, files);
+  }
+
+  @ApiOperationResponse(
+    apiDesc.user.testAlgorithm,
+    HttpStatus.OK,
+    message.user.TEST_ALGORITHM
+  )
+  @Post('test/algorithm')
+  async testAlgorithm(@Body() body: UserDto) {
+    return this.userService.testAlgorithm(body);
+  }
+
+  @ApiOperationResponse(
+    apiDesc.user.testAlgorithm,
+    HttpStatus.OK,
+    message.user.TEST_ALGORITHM
+  )
+  @Get('test/algorithm')
+  async testAlgorithm2() {
+    return this.userService.testAlgorithm2();
   }
 }

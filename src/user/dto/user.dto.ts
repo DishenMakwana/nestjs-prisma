@@ -52,3 +52,19 @@ export class FileUploadDto {
   @IsNotEmpty()
   file: Express.Multer.File[];
 }
+
+export class UserDto {
+  @ApiProperty({
+    default: 'John',
+  })
+  @IsNotEmpty()
+  @IsString()
+  name: string;
+
+  @ApiProperty({
+    default: 'john@gmail.com',
+  })
+  @IsNotEmpty()
+  @IsString()
+  email: string;
+}

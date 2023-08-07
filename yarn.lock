@@ -2742,6 +2742,11 @@ crypt@0.0.2:
   resolved "https://registry.yarnpkg.com/crypt/-/crypt-0.0.2.tgz#88d7ff7ec0dfb86f713dc87bbb42d044d3e6c41b"
   integrity sha512-mCxBlsHFYh9C+HVpiEacem8FEBnMXgU9gy4zmNC+SXAZNB/1idgp/aulFJ4FgCi7GPEVbfyng092GqL2k2rmow==
 
+crypto-js@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/crypto-js/-/crypto-js-4.1.1.tgz#9e485bcf03521041bd85844786b83fb7619736cf"
+  integrity sha512-o2JlM7ydqd3Qk9CA0L4NL6mTzU2sdx96a+oOfPu8Mkl/PK51vSyoi8/rQ8NknZtk44vq15lmhAj9CIAGwgeWKw==
+
 css-rules@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/css-rules/-/css-rules-1.1.0.tgz#404b8b1f77bd775f6c6902b7a7b534f5c016b07f"
@@ -4376,6 +4381,11 @@ jsonwebtoken@^9.0.0:
     lodash "^4.17.21"
     ms "^2.1.1"
     semver "^7.3.8"
+
+jsrsasign@^10.8.6:
+  version "10.8.6"
+  resolved "https://registry.yarnpkg.com/jsrsasign/-/jsrsasign-10.8.6.tgz#ebf7f3c812c6517af84f0d8a10115e0dbfabe145"
+  integrity sha512-bQmbVtsfbgaKBTWCKiDCPlUPbdlRIK/FzSwT3BzIgZl/cU6TqXu6pZJsCI/dJVrZ9Gir5GC4woqw9shH/v7MBw==
 
 jstransformer@1.0.0:
   version "1.0.0"

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
 import { DatabaseModule } from './database/prisma.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -16,6 +16,7 @@ import { PusherModule } from './pusher/pusher.module';
 import { PusherConfig } from './pusher/pusher.config';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { DecryptionMiddleware } from './common/middleware';
 
 export const modules = {
   Auth: AuthModule,
@@ -68,4 +69,8 @@ export const modules = {
     { provide: APP_GUARD, useClass: ThrottlerGuard },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(DecryptionMiddleware).forRoutes('*');
+  }
+}

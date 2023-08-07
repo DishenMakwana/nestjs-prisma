@@ -56,6 +56,7 @@ export const message = {
     VERIFICATION_SUCCESSFULLY: 'Verification successfully.',
     SUCCESS_SOCIAL_REGISTER: 'Social register success.',
     SUCCESS_SOCIAL_LOGIN: 'Social login success.',
+    TEST_ALGORITHM: 'Test algorithm.',
   },
   admin: {
     USER_DETAILS: 'User details fetch successfully.',

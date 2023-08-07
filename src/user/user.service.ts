@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { AuthUserType } from '../common/types';
-import { FileUploadDto, UpdateProfileDto, UserPhotoDto } from './dto';
+import { FileUploadDto, UpdateProfileDto, UserDto, UserPhotoDto } from './dto';
 import { AwsService } from '../aws/aws.service';
 import { PrismaService } from '../database/prisma.service';
 import { ConfigService } from '@nestjs/config';
@@ -12,6 +12,45 @@ import { PusherService } from '../pusher/pusher.service';
 @Injectable()
 export class UserService {
   private readonly logger: Logger = new Logger(UserService.name);
+  private userList: any[] = [
+    { name: 'John Doe', email: 'john@gmail.com' },
+    { name: 'Rushi', email: 'rushi@gmail.com' },
+    { name: 'Raj', email: 'raj@gmail.com' },
+    { name: 'Rahul', email: 'rahul@gmail.com' },
+    { name: 'Rajesh', email: 'rajesh@gmail.com' },
+    {
+      name: 'Ramesh',
+      email: 'ramesh@gmail.com',
+    },
+    {
+      name: 'Rakesh',
+      email: 'rakesh@gmail.com',
+    },
+    {
+      name: 'Mehul',
+      email: 'mehul@gmail.com',
+    },
+    {
+      name: 'Rajan',
+      email: 'rajan@gmail.com',
+    },
+    {
+      name: 'Rutvik',
+      email: 'rutvik@gmail.com',
+    },
+    {
+      name: 'Dishen',
+      email: 'dishen@gmail.com',
+    },
+    {
+      name: 'Prashant',
+      email: 'prashant@gmail.com',
+    },
+    {
+      name: 'Poojan',
+      email: 'poojan@gmail.com',
+    },
+  ];
 
   constructor(
     private readonly prisma: PrismaService,
@@ -97,6 +136,19 @@ export class UserService {
 
   async testAWSUploadFile(userId: string, path: string, files: FileUploadDto) {
     return this.awsService.uploadFile(path, +userId, files.file[0]);
+  }
+
+  async testAlgorithm(body: UserDto) {
+    this.userList.push(body);
+
+    return body;
+  }
+
+  async testAlgorithm2() {
+    return {
+      userList: this.userList,
+      total: this.userList.length,
+    };
   }
 
   decryptData(encryptedData: any): string {

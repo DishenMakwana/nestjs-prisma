@@ -15,13 +15,16 @@ import { message } from '../assets/message.asset';
 import * as camelize from 'camelize';
 import { ConfigService } from '@nestjs/config';
 import { NODE_ENVIRONMENT } from '../assets';
+import { CryptoEncryptDecryptInterceptor } from '../middleware';
 
 export interface Response<T> {
   data: T;
 }
 
 @Injectable()
-export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T>> {
+export class ResponseInterceptor<T>
+  implements NestInterceptor<T, Response<T> | string>
+{
   constructor(
     private readonly reflector: Reflector,
     private readonly configService: ConfigService
@@ -30,7 +33,7 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T>> {
   intercept(
     context: ExecutionContext,
     next: CallHandler
-  ): Observable<Response<T>> {
+  ): Observable<Response<T> | string> {
     const logger: Logger = new Logger(ResponseInterceptor.name);
 
     return next.handle().pipe(
@@ -42,7 +45,7 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T>> {
 
         data = camelize(data);
 
-        return {
+        const response = {
           success: true,
           message:
             data !== undefined
@@ -57,6 +60,17 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T>> {
                 : data
               : {},
         };
+
+        // return response;
+
+        return CryptoEncryptDecryptInterceptor.encryptRequestData(
+          response,
+          'cryptoKey@123$%'
+        );
+
+        // return JsrsasignEncryptDecryptInterceptor.encryptRequestData(response);
+
+        // return JWTEncryptDecryptInterceptor.encryptRequestData(response);
       }),
 
       catchError((error) => {
