@@ -4,7 +4,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/database/prisma.service';
+import { PrismaService } from './../database/prisma.service';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import {
@@ -20,6 +20,7 @@ import {
 } from './dto';
 import {
   Algorithm,
+  AppleIdTokenType,
   AuthUserType,
   ForgotPasswordEvent,
   RequestInfo,
@@ -38,7 +39,6 @@ import { AuthTransformer } from './auth.transformer';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Prisma, User } from '@prisma/client';
 import { AppleApiService, GoogleApiService, GoogleUser } from './services';
-import { AppleIdTokenType } from 'apple-signin-auth';
 
 @Injectable()
 export class AuthService {

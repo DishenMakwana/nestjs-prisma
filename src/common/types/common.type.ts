@@ -73,3 +73,16 @@ export type Algorithm =
   | 'PS384'
   | 'PS512'
   | 'none';
+
+export type AppleIdTokenType = {
+  iss: string;
+  sub: string;
+  aud: string;
+  exp: string;
+  iat: string;
+  nonce: string;
+  nonce_supported: boolean;
+  email: string;
+  email_verified: 'true' | 'false' | boolean;
+  is_private_email: 'true' | 'false' | boolean;
+};

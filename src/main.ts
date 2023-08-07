@@ -47,6 +47,7 @@ async function bootstrap() {
     new ValidationPipe({
       transform: true,
       whitelist: true,
+      // forbidNonWhitelisted: true,
     })
   );
 
@@ -119,6 +120,7 @@ async function bootstrap() {
       origin: '*',
       methods: ['GET', 'POST', 'PUT', 'DELETE'],
       // maxAge: 3600, // Specify the maximum cache duration in seconds
+      credentials: true,
     });
   }
 

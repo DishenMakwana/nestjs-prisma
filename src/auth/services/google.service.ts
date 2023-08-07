@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, Logger } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosResponse } from 'axios';
 import { message } from '../../common/assets';
@@ -17,7 +17,6 @@ export type GoogleUser = {
 @Injectable()
 export class GoogleApiService {
   private endpoint = '';
-  private readonly logger: Logger = new Logger(GoogleApiService.name);
 
   constructor(private readonly configService: ConfigService) {
     this.endpoint = this.configService.getOrThrow<string>('GOOGLE_CLIENT_URL');
@@ -39,7 +38,7 @@ export class GoogleApiService {
 
       return response.data;
     } catch (error) {
-      this.logger.error({ error: error.response.data });
+      console.log(GoogleApiService.name, error.response.data);
       throw new ForbiddenException(message.user.INVALID_GOOGLE_TOKEN);
     }
   }

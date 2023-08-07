@@ -5,7 +5,6 @@ import {
   ExecutionContext,
   HttpException,
   InternalServerErrorException,
-  Logger,
   HttpStatus,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
@@ -31,8 +30,6 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T>> {
     context: ExecutionContext,
     next: CallHandler
   ): Observable<Response<T>> {
-    const logger: Logger = new Logger(ResponseInterceptor.name);
-
     return next.handle().pipe(
       map((data) => {
         const success_message = this.reflector.get<string>(
@@ -62,7 +59,7 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T>> {
       catchError((error) => {
         if (error.status) {
           return throwError(() => {
-            logger.error({ error });
+            console.error(ResponseInterceptor.name, error);
 
             const message =
               typeof error.response.message === 'string'
@@ -93,7 +90,7 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T>> {
         }
 
         return throwError(() => {
-          logger.error({ error });
+          console.error(ResponseInterceptor.name, error);
 
           const response = {
             statusCode: HttpStatus.INTERNAL_SERVER_ERROR,

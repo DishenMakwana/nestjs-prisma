@@ -1,7 +1,6 @@
 import {
   INestApplication,
   Injectable,
-  Logger,
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common';
@@ -14,8 +13,6 @@ export class PrismaService
   extends PrismaClient<Prisma.PrismaClientOptions, 'query'>
   implements OnModuleInit, OnModuleDestroy
 {
-  private readonly logger: Logger = new Logger(PrismaService.name);
-
   constructor(private readonly configService: ConfigService) {
     super({
       datasources: {
@@ -38,7 +35,7 @@ export class PrismaService
     });
 
     this.$on<any>('query', (e: Prisma.QueryEvent) => {
-      this.logger.debug(
+      console.debug(
         `Query: ${e.query}` + ` ${e.params}` + ` duration: ${e.duration} ms`
       );
     });
@@ -59,7 +56,7 @@ export class PrismaService
       try {
         await app.close();
       } catch (error) {
-        this.logger.error({ error });
+        console.error({ error });
       }
     });
   }
