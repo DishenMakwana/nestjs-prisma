@@ -16,6 +16,8 @@ import { PusherModule } from './pusher/pusher.module';
 import { PusherConfig } from './pusher/pusher.config';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { WinstonModule } from 'nest-winston';
+import { LoggerConfig } from './common/config';
 
 export const modules = {
   Auth: AuthModule,
@@ -27,6 +29,15 @@ export const modules = {
 
 @Module({
   imports: [
+    WinstonModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        const loggerConfig = new LoggerConfig(configService);
+        return {
+          ...loggerConfig.getLoggerConfig,
+        };
+      },
+    }),
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -43,13 +54,13 @@ export const modules = {
     EventEmitterModule.forRoot(),
     ScheduleModule.forRoot(),
     PusherModule.forRootAsync({
+      inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         const pusherConfig = new PusherConfig(configService);
         return {
           options: pusherConfig.getPusherConfig,
         };
       },
-      inject: [ConfigService],
     }),
     MailModule,
     AwsModule,
@@ -66,6 +77,7 @@ export const modules = {
       useClass: RequestInterceptor,
     },
     { provide: APP_GUARD, useClass: ThrottlerGuard },
+    // LoggerService,
   ],
 })
 export class AppModule {}
