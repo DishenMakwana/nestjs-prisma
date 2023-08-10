@@ -2,17 +2,7 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosResponse } from 'axios';
 import { message } from '../../common/assets';
-
-export type GoogleUser = {
-  sub: string;
-  name: string;
-  givenName: string;
-  familyName: string;
-  picture: string;
-  email: string;
-  emailVerified: boolean;
-  locale: string;
-};
+import { GoogleUser } from '../../common/types';
 
 @Injectable()
 export class GoogleApiService {

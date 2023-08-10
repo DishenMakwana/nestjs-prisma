@@ -23,6 +23,7 @@ import {
   AppleIdTokenType,
   AuthUserType,
   ForgotPasswordEvent,
+  GoogleUser,
   RequestInfo,
   Tokens,
   UserRegisterEvent,
@@ -38,7 +39,7 @@ import { ConfigService } from '@nestjs/config';
 import { AuthTransformer } from './auth.transformer';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Prisma, User } from '@prisma/client';
-import { AppleApiService, GoogleApiService, GoogleUser } from './services';
+import { AppleApiService, GoogleApiService } from './services';
 
 @Injectable()
 export class AuthService {
