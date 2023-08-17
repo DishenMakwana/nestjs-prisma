@@ -15,9 +15,12 @@ import { TasksModule } from './tasks/tasks.module';
 import { PusherModule } from './pusher/pusher.module';
 import { PusherConfig } from './pusher/pusher.config';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { WinstonModule } from 'nest-winston';
-import { LoggerConfig } from './common/config';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { GraphQLModule } from '@nestjs/graphql';
+import { ApolloDriver } from '@nestjs/apollo';
+import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
+import { join } from 'path';
+import { GqlThrottlerGuard } from './common/guards';
 
 export const modules = {
   Auth: AuthModule,
@@ -29,15 +32,15 @@ export const modules = {
 
 @Module({
   imports: [
-    WinstonModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
-        const loggerConfig = new LoggerConfig(configService);
-        return {
-          ...loggerConfig.getLoggerConfig,
-        };
-      },
-    }),
+    // WinstonModule.forRootAsync({
+    //   inject: [ConfigService],
+    //   useFactory: (configService: ConfigService) => {
+    //     const loggerConfig = new LoggerConfig(configService);
+    //     return {
+    //       ...loggerConfig.getLoggerConfig,
+    //     };
+    //   },
+    // }),
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -53,6 +56,14 @@ export const modules = {
     }),
     EventEmitterModule.forRoot(),
     ScheduleModule.forRoot(),
+    GraphQLModule.forRoot({
+      driver: ApolloDriver,
+      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      sortSchema: true,
+      playground: false,
+      plugins: [ApolloServerPluginLandingPageLocalDefault()],
+      context: ({ req, res }) => ({ req, res }),
+    }),
     PusherModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
@@ -76,7 +87,7 @@ export const modules = {
       provide: APP_INTERCEPTOR,
       useClass: RequestInterceptor,
     },
-    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_GUARD, useClass: GqlThrottlerGuard },
     // LoggerService,
   ],
 })

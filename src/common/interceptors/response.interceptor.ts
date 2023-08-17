@@ -15,6 +15,7 @@ import { message } from '../assets/message.asset';
 import * as camelize from 'camelize';
 import { ConfigService } from '@nestjs/config';
 import { NODE_ENVIRONMENT } from '../assets';
+import { GqlExecutionContext } from '@nestjs/graphql';
 
 export interface Response<T> {
   data: T;
@@ -33,8 +34,15 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T>> {
     context: ExecutionContext,
     next: CallHandler
   ): Observable<Response<T>> {
+    const gqlContext = GqlExecutionContext.create(context);
+    const isGraphql = !!gqlContext.getType();
+
     return next.handle().pipe(
       map((data) => {
+        if (isGraphql) {
+          return data;
+        }
+
         const success_message = this.reflector.get<string>(
           'success_message',
           context.getHandler()

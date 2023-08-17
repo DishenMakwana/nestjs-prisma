@@ -1,0 +1,31 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input ListQueryInput {
+  limit: Float! = 10
+  order: String
+  page: Float! = 0
+  search: String
+  sort: String
+}
+
+type Query {
+  userListing(listQueryInput: ListQueryInput!): UserListingResponse!
+}
+
+type UserList {
+  email: String!
+  first_name: String!
+  id: Float!
+  is_onboarded: Boolean!
+  is_verified: Boolean!
+  last_name: String!
+  role: String!
+  username: String!
+}
+
+type UserListingResponse {
+  total: Float!
+  userList: [UserList!]!
+}

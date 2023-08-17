@@ -1,13 +1,20 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { AuthUserType } from '../common/types';
-import { FileUploadDto, UpdateProfileDto, UserPhotoDto } from './dto';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { AuthUserType, OrderType } from '../common/types';
+import {
+  FileUploadDto,
+  ListQueryInput,
+  UpdateProfileDto,
+  UserPhotoDto,
+} from './dto';
 import { AwsService } from '../aws/aws.service';
 import { PrismaService } from '../database/prisma.service';
 import { ConfigService } from '@nestjs/config';
-import { taskEvent } from '../common/assets';
+import { message, taskEvent } from '../common/assets';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { UserTransformer } from './user.transformer';
 import { PusherService } from '../pusher/pusher.service';
+import { Prisma, Role } from '@prisma/client';
+import { UserQueryType, UserSortColumnType } from '../admin/types';
 
 @Injectable()
 export class UserService {
@@ -76,6 +83,96 @@ export class UserService {
         last_name: body.lastName,
       },
     });
+  }
+
+  async userListing(listQueryInput: ListQueryInput) {
+    const search: string = listQueryInput.search ?? null;
+    const limit: number = listQueryInput.limit ?? 10;
+    const page: number = listQueryInput.page ?? 0;
+    const sort: UserSortColumnType =
+      (listQueryInput.sort as UserSortColumnType) ?? 'created_at';
+    const order: OrderType = (listQueryInput.order as OrderType) ?? 'desc';
+
+    const allowedSortColumns = [
+      'id',
+      'created_at',
+      'username',
+      'email',
+      'school',
+    ];
+
+    const allowedSortOrders = ['asc', 'desc'];
+
+    if (!allowedSortColumns.includes(sort)) {
+      throw new BadRequestException(message.common.INVALID_SORT_COLUMN);
+    }
+
+    if (!allowedSortOrders.includes(order)) {
+      throw new BadRequestException(message.common.INVALID_SORT_ORDER);
+    }
+
+    let where: Prisma.UserWhereInput = {
+      role: Role.user,
+      is_onboarded: true,
+    };
+
+    const orderBy: Prisma.UserOrderByWithRelationInput = {};
+
+    orderBy[sort] = order;
+
+    if (search) {
+      where = {
+        ...where,
+        OR: [
+          {
+            username: {
+              contains: search,
+            },
+          },
+          {
+            email: {
+              startsWith: search,
+            },
+          },
+        ],
+      };
+    }
+
+    let query: UserQueryType = {
+      where,
+      orderBy,
+      select: {
+        id: true,
+        first_name: true,
+        last_name: true,
+        email: true,
+        role: true,
+        username: true,
+        is_verified: true,
+        is_onboarded: true,
+      },
+    };
+
+    if (limit) {
+      const offset = limit * page;
+      query = {
+        skip: offset,
+        take: limit,
+        ...query,
+      };
+    }
+
+    const [total, userList] = await Promise.all([
+      this.prisma.user.count({
+        where,
+      }),
+      this.prisma.user.findMany(query),
+    ]);
+
+    return {
+      total,
+      userList,
+    };
   }
 
   async testPusher(channel: string, event: string) {

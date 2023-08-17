@@ -12,7 +12,7 @@ import { PrismaService } from './database/prisma.service';
 import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
 import * as requestIp from 'request-ip';
-import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { NODE_ENVIRONMENT } from './common/assets';
 
 async function bootstrap() {
   const logger: Logger = new Logger(process.env.APP_NAME);
@@ -24,20 +24,23 @@ async function bootstrap() {
         : ['error', 'warn', 'debug', 'verbose'],
   });
 
-  const loggerService = app.get(WINSTON_MODULE_NEST_PROVIDER);
-  app.useLogger(loggerService);
+  // const loggerService = app.get(WINSTON_MODULE_NEST_PROVIDER);
+  // app.useLogger(loggerService);
 
   const configService = app.get(ConfigService);
 
   if (configService.getOrThrow<string>('API_ROUTE_LOG') === 'true') {
     app.use(
-      morgan('combined', {
-        stream: {
-          write: (message) => {
-            loggerService.log(message);
-          },
-        },
-      })
+      morgan(
+        'dev'
+        //   'combined', {
+        //   stream: {
+        //     write: (message) => {
+        //       loggerService.log(message);
+        //     },
+        //   },
+        // }
+      )
     );
   }
 
@@ -123,7 +126,16 @@ async function bootstrap() {
   app.useBodyParser('json', { limit: '50mb' });
   app.use(urlencoded({ limit: '50mb', extended: true }));
 
-  app.use(helmet());
+  app.use(
+    helmet({
+      contentSecurityPolicy:
+        configService.getOrThrow<string>('NODE_ENV') ===
+        NODE_ENVIRONMENT.PRODUCTION
+          ? undefined
+          : false,
+      crossOriginEmbedderPolicy: false,
+    })
+  );
   app.use(requestIp.mw());
 
   const enableCors = configService.getOrThrow<boolean>('ENABLE_CORS');
@@ -143,6 +155,11 @@ async function bootstrap() {
     `Swagger docs: ${configService.getOrThrow<string>(
       'API_BASE_URL'
     )}${docsPath}`
+  );
+  logger.debug(
+    `GraphQL is running on: ${configService.getOrThrow<string>(
+      'API_BASE_URL'
+    )}/graphql`
   );
 }
 bootstrap();

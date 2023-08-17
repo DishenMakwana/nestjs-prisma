@@ -1,5 +1,6 @@
 import {
   CallHandler,
+  ContextType,
   ExecutionContext,
   Injectable,
   NestInterceptor,
@@ -12,6 +13,12 @@ import * as requestIp from 'request-ip';
 @Injectable()
 export class RequestInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    const reqType = context.getType<ContextType | 'graphql'>();
+
+    if (reqType === 'graphql') {
+      return next.handle();
+    }
+
     const request: CustomRequest = context.switchToHttp().getRequest();
 
     const ip = requestIp.getClientIp(request); // Get the request IP
