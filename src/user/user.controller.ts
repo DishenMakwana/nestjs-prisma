@@ -115,4 +115,14 @@ export class UserController {
   ) {
     return this.userService.testAWSUploadFile(userId, path, files);
   }
+
+  @ApiOperationResponse(
+    apiDesc.user.testRedis,
+    HttpStatus.OK,
+    message.user.TEST_REDIS
+  )
+  @Get('test/redis')
+  async testRedis() {
+    return this.userService.testRedis();
+  }
 }

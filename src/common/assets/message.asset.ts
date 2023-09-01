@@ -1,5 +1,6 @@
 export const message = {
   SUCCESS_RESPONSE: 'Success.',
+  INTERNAL_SERVER_ERROR: 'Internal server error.',
   config: {
     CONFIG_ALREADY_EXISTS: 'Config already exists.',
     CREATE_CONFIG: 'Config created successfully.',
@@ -56,6 +57,7 @@ export const message = {
     VERIFICATION_SUCCESSFULLY: 'Verification successfully.',
     SUCCESS_SOCIAL_REGISTER: 'Social register success.',
     SUCCESS_SOCIAL_LOGIN: 'Social login success.',
+    TEST_REDIS: 'Test redis.',
   },
   admin: {
     USER_DETAILS: 'User details fetch successfully.',

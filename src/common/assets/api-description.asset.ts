@@ -19,6 +19,7 @@ export const apiDesc = {
     testEmail: 'Test email',
     testNotification: 'Test notification',
     testAWSUploadFile: 'Test AWS upload file',
+    testRedis: 'Test redis',
   },
   auth: {
     login: 'Login',

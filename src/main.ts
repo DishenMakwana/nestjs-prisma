@@ -12,7 +12,6 @@ import { PrismaService } from './database/prisma.service';
 import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
 import * as requestIp from 'request-ip';
-import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 async function bootstrap() {
   const logger: Logger = new Logger(process.env.APP_NAME);
@@ -24,20 +23,23 @@ async function bootstrap() {
         : ['error', 'warn', 'debug', 'verbose'],
   });
 
-  const loggerService = app.get(WINSTON_MODULE_NEST_PROVIDER);
-  app.useLogger(loggerService);
+  // const loggerService = app.get(WINSTON_MODULE_NEST_PROVIDER);
+  // app.useLogger(loggerService);
 
   const configService = app.get(ConfigService);
 
   if (configService.getOrThrow<string>('API_ROUTE_LOG') === 'true') {
     app.use(
-      morgan('combined', {
-        stream: {
-          write: (message) => {
-            loggerService.log(message);
-          },
-        },
-      })
+      morgan(
+        'dev'
+        //   'combined', {
+        //   stream: {
+        //     write: (message) => {
+        //       loggerService.log(message);
+        //     },
+        //   },
+        // }
+      )
     );
   }
 

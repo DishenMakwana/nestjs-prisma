@@ -11,3 +11,4 @@ export * from './api-file-fields.decorator';
 export * from './api-response.decorator';
 export * from './user-request-info.decorator';
 export * from './request-ip.decorator';
+export * from './origin.decorator';

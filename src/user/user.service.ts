@@ -8,6 +8,7 @@ import { taskEvent } from '../common/assets';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { UserTransformer } from './user.transformer';
 import { PusherService } from '../pusher/pusher.service';
+import { RedisService } from '../redis/redis.service';
 
 @Injectable()
 export class UserService {
@@ -19,7 +20,8 @@ export class UserService {
     private readonly configService: ConfigService,
     private readonly eventEmitter: EventEmitter2,
     private readonly userTransformer: UserTransformer,
-    private readonly pusherService: PusherService
+    private readonly pusherService: PusherService,
+    private readonly redisService: RedisService
   ) {}
 
   async profileData(authUser: AuthUserType) {
@@ -97,6 +99,36 @@ export class UserService {
 
   async testAWSUploadFile(userId: string, path: string, files: FileUploadDto) {
     return this.awsService.uploadFile(path, +userId, files.file[0]);
+  }
+
+  async testRedis() {
+    const cacheData = {
+      name: 'test',
+      email: 'test@gmail.com',
+    };
+
+    console.log(
+      'Before cache:',
+      await this.redisService.getValue('key'),
+      new Date()
+    );
+
+    await this.redisService.setValue('key', JSON.stringify(cacheData));
+    const data = await this.redisService.getValue('key');
+
+    console.log('After cache:', JSON.parse(data), new Date());
+
+    const res = await this.redisService.deleteValue('key');
+
+    console.log(
+      'After delete:',
+      await this.redisService.getValue('key'),
+      res,
+      JSON.parse(data),
+      new Date()
+    );
+
+    return { res, data: JSON.parse(data) };
   }
 
   decryptData(encryptedData: any): string {
