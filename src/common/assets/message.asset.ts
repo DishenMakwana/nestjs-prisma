@@ -58,6 +58,7 @@ export const message = {
     SUCCESS_SOCIAL_REGISTER: 'Social register success.',
     SUCCESS_SOCIAL_LOGIN: 'Social login success.',
     TEST_REDIS: 'Test redis.',
+    TEST_CACHE: 'Test cache.',
   },
   admin: {
     USER_DETAILS: 'User details fetch successfully.',

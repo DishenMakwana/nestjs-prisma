@@ -117,12 +117,12 @@ export class UserController {
   }
 
   @ApiOperationResponse(
-    apiDesc.user.testRedis,
+    apiDesc.user.testCache,
     HttpStatus.OK,
-    message.user.TEST_REDIS
+    message.user.TEST_CACHE
   )
-  @Get('test/redis')
-  async testRedis() {
-    return this.userService.testRedis();
+  @Get('test/cache')
+  async testCache() {
+    return this.userService.testCache();
   }
 }

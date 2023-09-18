@@ -10,7 +10,7 @@ import { PrismaSoftDeleteMiddleware } from '../common/middleware';
 
 @Injectable()
 export class PrismaService
-  extends PrismaClient
+  extends PrismaClient<Prisma.PrismaClientOptions, 'query'>
   implements OnModuleInit, OnModuleDestroy
 {
   constructor(private readonly configService: ConfigService) {
@@ -52,7 +52,7 @@ export class PrismaService
   }
 
   async enableShutdownHooks(app: INestApplication) {
-    this.$on('beforeExit', async () => {
+    this.$on<'beforeExit'>('beforeExit', async () => {
       await app.close();
     });
   }

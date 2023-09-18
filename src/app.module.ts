@@ -18,7 +18,7 @@ import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { WinstonModule } from 'nest-winston';
 import { LoggerConfig } from './common/config';
-import { RedisConfigModule } from './redis/redis.module';
+import { CacheConfigModule } from './cache/cache.module';
 
 export const modules = {
   Auth: AuthModule,
@@ -52,7 +52,7 @@ export const modules = {
       isGlobal: true,
       envFilePath: ['./.env'],
     }),
-    RedisConfigModule,
+    CacheConfigModule,
     EventEmitterModule.forRoot(),
     ScheduleModule.forRoot(),
     PusherModule.forRootAsync({
