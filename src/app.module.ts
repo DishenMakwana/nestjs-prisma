@@ -14,11 +14,12 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { TasksModule } from './tasks/tasks.module';
 import { PusherModule } from './pusher/pusher.module';
 import { PusherConfig } from './pusher/pusher.config';
-import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { WinstonModule } from 'nest-winston';
 import { LoggerConfig } from './common/config';
 import { CacheConfigModule } from './cache/cache.module';
+import { CustomExceptionFilter } from './common/filters';
 
 export const modules = {
   Auth: AuthModule,
@@ -79,6 +80,10 @@ export const modules = {
       useClass: RequestInterceptor,
     },
     { provide: APP_GUARD, useClass: ThrottlerGuard },
+    {
+      provide: APP_FILTER,
+      useClass: CustomExceptionFilter,
+    },
     // LoggerService,
   ],
 })
