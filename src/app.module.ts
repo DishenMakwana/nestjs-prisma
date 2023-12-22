@@ -5,69 +5,39 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { RequestInterceptor, ResponseInterceptor } from './common/interceptors';
 import { AwsModule } from './aws/aws.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { CustomConfigModule } from './config/config.module';
 import { UserModule } from './user/user.module';
 import { AdminModule } from './admin/admin.module';
 import { MailModule } from './mail/mail.module';
-import { NotificationModule } from './notification/notification.module';
-import { ScheduleModule } from '@nestjs/schedule';
-import { TasksModule } from './tasks/tasks.module';
-import { PusherModule } from './pusher/pusher.module';
-import { PusherConfig } from './pusher/pusher.config';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { WinstonModule } from 'nest-winston';
-import { LoggerConfig } from './common/config';
-import { CacheConfigModule } from './cache/cache.module';
 import { CustomExceptionFilter } from './common/filters';
 
 export const modules = {
   Auth: AuthModule,
   Admin: AdminModule,
-  CustomConfig: CustomConfigModule,
   User: UserModule,
-  Task: TasksModule,
 };
 
 @Module({
   imports: [
-    WinstonModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
-        const loggerConfig = new LoggerConfig(configService);
-        return {
-          ...loggerConfig.getLoggerConfig,
-        };
-      },
-    }),
-    ThrottlerModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        ttl: +configService.getOrThrow<number>('THROTTLE_TTL'),
-        limit: +configService.getOrThrow<number>('THROTTLE_LIMIT'),
-      }),
-    }),
-    DatabaseModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['./.env'],
     }),
-    CacheConfigModule,
-    EventEmitterModule.forRoot(),
-    ScheduleModule.forRoot(),
-    PusherModule.forRootAsync({
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
-        const pusherConfig = new PusherConfig(configService);
-        return {
-          options: pusherConfig.getPusherConfig,
-        };
-      },
+      useFactory: (configService: ConfigService) => [
+        {
+          ttl: +configService.getOrThrow<number>('THROTTLE_TTL'), // milliseconds
+          limit: +configService.getOrThrow<number>('THROTTLE_LIMIT'),
+        },
+      ],
     }),
+    EventEmitterModule.forRoot(),
+    DatabaseModule,
     MailModule,
     AwsModule,
-    NotificationModule,
     ...Object.values(modules),
   ],
   providers: [
@@ -84,7 +54,6 @@ export const modules = {
       provide: APP_FILTER,
       useClass: CustomExceptionFilter,
     },
-    // LoggerService,
   ],
 })
 export class AppModule {}

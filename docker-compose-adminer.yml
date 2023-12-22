@@ -1,8 +1,0 @@
-version: '3.8'
-services:
-  adminer:
-    image: adminer:latest
-    container_name: adminer
-    restart: always
-    ports:
-      - 8080:8080

@@ -10,7 +10,6 @@ import { CustomResponse, message } from '../common/assets';
 import { Buffer } from 'buffer';
 import { OrderType, PayloadType } from '../common/types';
 import { UserQueryType, UserSortColumnType } from './types';
-import { UpdateAllConfigDto } from './dto';
 
 @Injectable()
 export class AdminService {
@@ -131,32 +130,6 @@ export class AdminService {
     return CustomResponse(
       this.adminTransformer.transformUserDetail(userDetail),
       message.admin.USER_DETAILS
-    );
-  }
-
-  async updateConfig(body: UpdateAllConfigDto) {
-    await Promise.all(
-      body.config.map(async (config) => {
-        const configData = await this.prisma.config.findUnique({
-          where: {
-            id: config.id,
-          },
-        });
-
-        if (!configData) {
-          throw new NotFoundException(message.config.CONFIG_NOT_FOUND);
-        }
-
-        await this.prisma.config.update({
-          where: {
-            id: config.id,
-          },
-          data: {
-            key: config.key,
-            value: config.value,
-          },
-        });
-      })
     );
   }
 

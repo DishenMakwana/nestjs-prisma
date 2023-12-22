@@ -23,24 +23,10 @@ async function bootstrap() {
         : ['error', 'warn', 'debug', 'verbose'],
   });
 
-  // const loggerService = app.get(WINSTON_MODULE_NEST_PROVIDER);
-  // app.useLogger(loggerService);
-
   const configService = app.get(ConfigService);
 
   if (configService.getOrThrow<string>('API_ROUTE_LOG') === 'true') {
-    app.use(
-      morgan(
-        'dev'
-        //   'combined', {
-        //   stream: {
-        //     write: (message) => {
-        //       loggerService.log(message);
-        //     },
-        //   },
-        // }
-      )
-    );
+    app.use(morgan('dev'));
   }
 
   app.setGlobalPrefix('api');
@@ -70,9 +56,7 @@ async function bootstrap() {
 
   let config: any = new DocumentBuilder()
     .setTitle(configService.getOrThrow<string>('APP_NAME'))
-    .setDescription(
-      'Application dedicated to college/universities to organize events'
-    )
+    .setDescription('Description of the API')
     .setExternalDoc('Postman Collection', '/api/docs-json')
     .setVersion('1.0')
     .addBearerAuth();

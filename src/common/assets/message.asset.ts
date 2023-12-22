@@ -1,17 +1,6 @@
 export const message = {
   SUCCESS_RESPONSE: 'Success.',
   INTERNAL_SERVER_ERROR: 'Internal server error.',
-  config: {
-    CONFIG_ALREADY_EXISTS: 'Config already exists.',
-    CREATE_CONFIG: 'Config created successfully.',
-    CONFIG_LIST: 'Config list fetch successfully.',
-    CONFIG_DETAILS: 'Config details fetch successfully.',
-    UPDATE_CONFIG: 'Configurations Updated Successfully',
-    DELETE_CONFIG: 'Delete Config successfully.',
-    ALL_CONFIG: 'All config fetch successfully.',
-    CONFIG_SEARCH: 'Config search fetch successfully.',
-    CONFIG_NOT_FOUND: 'Config not found.',
-  },
   validate: {
     email: 'Please enter valid email.',
     password:
@@ -23,9 +12,6 @@ export const message = {
   common: {
     INVALID_SORT_COLUMN: 'Invalid sort column.',
     INVALID_SORT_ORDER: 'Invalid sort order.',
-  },
-  task: {
-    HANDLE_EXPIRED_TOKENS: 'Expired tokens handled successfully.',
   },
   user: {
     PROFILE_DATA: 'Profile data fetch successfully.',

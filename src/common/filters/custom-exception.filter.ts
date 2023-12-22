@@ -27,9 +27,11 @@ export class CustomExceptionFilter implements ExceptionFilter {
       const exceptionResponse: any = exception.getResponse();
 
       const errorMessage =
-        typeof exceptionResponse.message === 'string'
-          ? exceptionResponse?.message
-          : exceptionResponse?.message[0];
+        typeof exceptionResponse === 'string'
+          ? exceptionResponse
+          : typeof exceptionResponse.message === 'string'
+            ? exceptionResponse?.message
+            : exceptionResponse?.message[0];
 
       const stack =
         this.configService.getOrThrow<string>('NODE_ENV') ===

@@ -23,13 +23,7 @@ export const Actions = {
 export const taskEvent = {
   USER_REGISTER: 'user.register',
   FORGOT_PASSWORD: 'forgot.password',
-  PUSHER_LOG: 'pusher.log',
   TEST_EMAIL: 'test.email',
-  TEST_NOTIFICATION: 'test.notification',
-};
-
-export const PUSHER_EVENTS = {
-  SEND: 'send-message',
 };
 
 export const SOCIAL_LOGIN_PROVIDER = {

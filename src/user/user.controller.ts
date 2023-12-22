@@ -68,19 +68,6 @@ export class UserController {
   }
 
   @ApiOperationResponse(
-    apiDesc.user.testPusher,
-    HttpStatus.OK,
-    message.user.TEST_PUSHER
-  )
-  @Get('test/pusher/:channel/:event')
-  async testPusher(
-    @Param('channel') channel: string,
-    @Param('event') event: string
-  ) {
-    return this.userService.testPusher(channel, event);
-  }
-
-  @ApiOperationResponse(
     apiDesc.user.testEmail,
     HttpStatus.OK,
     message.user.TEST_EMAIL
@@ -88,16 +75,6 @@ export class UserController {
   @Get('test/email/:email')
   async testEmail(@Param('email') email: string) {
     return this.userService.testEmail(email);
-  }
-
-  @ApiOperationResponse(
-    apiDesc.user.testNotification,
-    HttpStatus.OK,
-    message.user.TEST_NOTIFICATION
-  )
-  @Get('test/notification/:userId')
-  async testNotification(@Param('userId') userId: string) {
-    return this.userService.testNotification(userId);
   }
 
   @ApiOperationResponse(
@@ -114,15 +91,5 @@ export class UserController {
     files: FileUploadDto
   ) {
     return this.userService.testAWSUploadFile(userId, path, files);
-  }
-
-  @ApiOperationResponse(
-    apiDesc.user.testCache,
-    HttpStatus.OK,
-    message.user.TEST_CACHE
-  )
-  @Get('test/cache')
-  async testCache() {
-    return this.userService.testCache();
   }
 }

@@ -1,16 +1,4 @@
 export const apiDesc = {
-  config: {
-    createConfig: 'Create Config',
-    configList: 'Config list',
-    configDetails: 'Config details',
-    updateConfig: 'Update Config',
-    deleteConfig: 'Delete Config',
-    allConfig: 'All config',
-    ConfigSearch: 'Config search',
-  },
-  task: {
-    handleExpiredTokens: 'Handle expired tokens',
-  },
   user: {
     profileData: 'Profile data',
     profilePhotoUpdate: 'Profile photo update',

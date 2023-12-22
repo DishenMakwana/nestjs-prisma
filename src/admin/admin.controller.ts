@@ -1,11 +1,9 @@
 import {
-  Body,
   Controller,
   Get,
   HttpStatus,
   Param,
   ParseIntPipe,
-  Put,
   Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -14,7 +12,6 @@ import { Role } from '@prisma/client';
 import { apiDesc, message } from '../common/assets';
 import { AdminService } from './admin.service';
 import { ListQueryDto } from '../auth/dto';
-import { UpdateAllConfigDto } from './dto';
 
 @ApiTags('Admin')
 @Controller('admin')
@@ -42,16 +39,5 @@ export class AdminController {
   @Get('users/:userId')
   async userDetails(@Param('userId', ParseIntPipe) userId: number) {
     return this.adminService.userDetail(userId);
-  }
-
-  @Auth({ roles: [Role.admin] })
-  @ApiOperationResponse(
-    apiDesc.admin.updateConfig,
-    HttpStatus.OK,
-    message.config.UPDATE_CONFIG
-  )
-  @Put('config')
-  async updateConfig(@Body() body: UpdateAllConfigDto) {
-    return this.adminService.updateConfig(body);
   }
 }
