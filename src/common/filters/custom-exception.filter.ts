@@ -27,7 +27,9 @@ export class CustomExceptionFilter implements ExceptionFilter {
       const exceptionResponse: any = exception.getResponse();
 
       const errorMessage =
-        typeof exceptionResponse.message === 'string'
+        typeof exceptionResponse === 'string'
+          ? exceptionResponse
+          : typeof exceptionResponse.message === 'string'
           ? exceptionResponse?.message
           : exceptionResponse?.message[0];
 
