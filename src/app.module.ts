@@ -44,7 +44,7 @@ export const modules = {
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        ttl: +configService.getOrThrow<number>('THROTTLE_TTL'),
+        ttl: +configService.getOrThrow<number>('THROTTLE_TTL'), // milliseconds
         limit: +configService.getOrThrow<number>('THROTTLE_LIMIT'),
       }),
     }),
