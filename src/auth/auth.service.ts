@@ -73,7 +73,7 @@ export class AuthService {
         role: true,
         logo: true,
         is_verified: true,
-        is_onboarded: true,
+        is_approved: true,
         is_social_register: true,
         password: true,
         provider: true,
@@ -152,7 +152,7 @@ export class AuthService {
       },
       select: {
         id: true,
-        is_onboarded: true,
+        is_approved: true,
         is_verified: true,
         is_social_register: true,
       },
@@ -162,7 +162,7 @@ export class AuthService {
       throw new ForbiddenException(message.user.USER_NOT_FOUND);
     }
 
-    if (!user?.is_onboarded) {
+    if (!user?.is_approved) {
       throw new ForbiddenException(message.user.USER_NOT_ONBOARDED);
     }
 
@@ -353,22 +353,22 @@ export class AuthService {
       },
       select: {
         id: true,
-        is_onboarded: true,
+        is_approved: true,
       },
     });
 
     const newOTP: number = this.generateOTP();
 
     if (user) {
-      if (user?.is_onboarded) {
+      if (user?.is_approved) {
         throw new ForbiddenException(message.user.USER_ALREADY_EXISTS);
-      } else if (!user?.is_onboarded) {
+      } else if (!user?.is_approved) {
         await this.prisma.user.update({
           where: {
             id: user.id,
           },
           data: {
-            is_onboarded: true,
+            is_approved: true,
             first_name: body.firstName,
             last_name: body.lastName,
             username: body.username,
@@ -383,7 +383,7 @@ export class AuthService {
       await this.prisma.user.create({
         data: {
           email: body.email,
-          is_onboarded: true,
+          is_approved: true,
           first_name: body.firstName,
           last_name: body.lastName,
           username: body.username,
@@ -413,7 +413,7 @@ export class AuthService {
       },
       select: {
         id: true,
-        is_onboarded: true,
+        is_approved: true,
         role: true,
         email: true,
         username: true,
@@ -452,21 +452,21 @@ export class AuthService {
       },
       select: {
         id: true,
-        is_onboarded: true,
+        is_approved: true,
         role: true,
       },
     });
 
     if (user) {
-      if (user?.is_onboarded) {
+      if (user?.is_approved) {
         throw new ForbiddenException(message.user.USER_ALREADY_EXISTS);
-      } else if (!user?.is_onboarded) {
+      } else if (!user?.is_approved) {
         await this.prisma.user.update({
           where: {
             id: user.id,
           },
           data: {
-            is_onboarded: true,
+            is_approved: true,
             first_name: body.firstName,
             last_name: body.lastName,
             username: body.username,
@@ -497,7 +497,7 @@ export class AuthService {
         role: true,
         logo: true,
         is_verified: true,
-        is_onboarded: true,
+        is_approved: true,
         is_social_register: true,
         password: true,
         provider: true,
@@ -579,7 +579,7 @@ export class AuthService {
         role: true,
         logo: true,
         is_verified: true,
-        is_onboarded: true,
+        is_approved: true,
         is_social_register: true,
         password: true,
         provider: true,
@@ -595,7 +595,7 @@ export class AuthService {
       userExist = await this.prisma.user.create({
         data: {
           email: userInfo.email,
-          is_onboarded: false,
+          is_approved: false,
           is_verified: true,
           is_social_register: true,
           provider: body.provider,
@@ -610,7 +610,7 @@ export class AuthService {
           role: true,
           logo: true,
           is_verified: true,
-          is_onboarded: true,
+          is_approved: true,
           is_social_register: true,
           password: true,
           provider: true,
@@ -633,7 +633,7 @@ export class AuthService {
         },
       });
 
-      if (!userExist?.is_onboarded) {
+      if (!userExist?.is_approved) {
         return {
           user: this.authTransformer.transformUser(userExist),
           access_token: null,

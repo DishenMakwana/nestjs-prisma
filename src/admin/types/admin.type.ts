@@ -8,11 +8,4 @@ export type UserQueryType = {
   take?: number;
 };
 
-export type UserSortColumnType =
-  | 'id'
-  | 'created_at'
-  | 'username'
-  | 'email'
-  | 'school';
-
-export type TeamSortColumnType = 'id' | 'created_at' | 'name';
+export type UserSortColumnType = 'id' | 'created_at' | 'username' | 'email';

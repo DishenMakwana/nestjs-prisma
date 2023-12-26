@@ -20,29 +20,6 @@ CREATE TABLE `email_logs` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `notification_logs` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `user_ids` VARCHAR(512) NOT NULL,
-    `title` VARCHAR(512) NOT NULL,
-    `payload` JSON NOT NULL,
-    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `pusher_logs` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `event_id` INTEGER NOT NULL,
-    `event_name` VARCHAR(255) NOT NULL,
-    `channel_name` VARCHAR(255) NOT NULL,
-    `data` JSON NOT NULL,
-    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
 CREATE TABLE `logs` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `action_id` INTEGER NOT NULL,
@@ -96,7 +73,7 @@ CREATE TABLE `users` (
     `role` ENUM('admin', 'user') NOT NULL DEFAULT 'user',
     `logo` VARCHAR(255) NULL,
     `code` VARCHAR(255) NULL,
-    `is_onboarded` BOOLEAN NOT NULL DEFAULT false,
+    `is_approved` BOOLEAN NOT NULL DEFAULT false,
     `is_social_register` BOOLEAN NOT NULL DEFAULT false,
     `is_verified` BOOLEAN NOT NULL DEFAULT false,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),

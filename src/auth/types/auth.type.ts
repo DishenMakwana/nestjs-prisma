@@ -16,7 +16,7 @@ export type LoginResponse = {
     role?: Role;
     logo: string;
     is_verified?: boolean;
-    is_onboarded?: boolean;
+    is_approved?: boolean;
     is_social_register?: boolean;
     provider?: string;
     provider_id?: string;

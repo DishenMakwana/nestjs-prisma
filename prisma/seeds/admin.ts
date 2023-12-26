@@ -14,7 +14,7 @@ export const adminSeed = async () => {
       last_name: 'Admin',
       is_verified: true,
       role: 'admin',
-      is_onboarded: true,
+      is_approved: true,
       password: await bcrypt.hash(
         process.env.ADMIN_PASSWORD,
         +process.env.SALT_ROUNDS

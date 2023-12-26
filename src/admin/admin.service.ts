@@ -26,13 +26,7 @@ export class AdminService {
       (payload.sort as UserSortColumnType) ?? 'created_at';
     const order: OrderType = (payload.order as OrderType) ?? 'desc';
 
-    const allowedSortColumns = [
-      'id',
-      'created_at',
-      'username',
-      'email',
-      'school',
-    ];
+    const allowedSortColumns = ['id', 'created_at', 'username', 'email'];
 
     const allowedSortOrders = ['asc', 'desc'];
 
@@ -46,7 +40,7 @@ export class AdminService {
 
     let where: Prisma.UserWhereInput = {
       role: Role.user,
-      is_onboarded: true,
+      is_approved: true,
     };
 
     const orderBy: Prisma.UserOrderByWithRelationInput = {};
@@ -80,7 +74,7 @@ export class AdminService {
         email: true,
         is_verified: true,
         is_social_register: true,
-        is_onboarded: true,
+        is_approved: true,
       },
     };
 
@@ -117,7 +111,7 @@ export class AdminService {
         email: true,
         is_verified: true,
         is_social_register: true,
-        is_onboarded: true,
+        is_approved: true,
         provider: true,
         first_name: true,
         last_name: true,

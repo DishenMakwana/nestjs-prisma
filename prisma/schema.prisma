@@ -88,7 +88,7 @@ model User {
   role               Role      @default(user)
   logo               String?   @db.VarChar(255)
   code               String?   @db.VarChar(255)
-  is_onboarded       Boolean   @default(false)
+  is_approved        Boolean   @default(false)
   is_social_register Boolean   @default(false)
   is_verified        Boolean   @default(false)
   created_at         DateTime  @default(now())

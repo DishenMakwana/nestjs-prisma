@@ -38,11 +38,10 @@ export class ATStrategy extends PassportStrategy(Strategy, 'jwt') {
         username: true,
         role: true,
         is_verified: true,
-        is_onboarded: true,
       },
     });
 
-    if (!user || !user.is_verified || !user.is_onboarded) {
+    if (!user || !user.is_verified) {
       throw new UnauthorizedException();
     }
 
