@@ -21,6 +21,7 @@ import {
 } from './dto';
 import { Role } from '@prisma/client';
 import { AuthUserType, RequestInfo } from '../common/types';
+import { Throttle } from '@nestjs/throttler';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -57,6 +58,7 @@ export class AuthController {
     return this.authService.logout(authUser, requestInfo);
   }
 
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @ApiOperationResponse(
     apiDesc.auth.forgotPassword,
     HttpStatus.OK,
@@ -106,6 +108,7 @@ export class AuthController {
     return this.authService.changePassword(authUser, body);
   }
 
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @ApiOperationResponse(
     apiDesc.auth.resentVerificationEmail,
     HttpStatus.OK,
