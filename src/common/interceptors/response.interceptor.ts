@@ -38,17 +38,17 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T>> {
         return {
           success: true,
           message:
-            data !== undefined
+            data !== undefined && data !== null
               ? Object.hasOwn(data, 'message')
                 ? data.message
                 : success_message
               : success_message ?? message.SUCCESS_RESPONSE,
           data:
-            data !== undefined
+            data !== undefined && data !== null
               ? Object.hasOwn(data, 'data')
                 ? data.data
                 : data
-              : {},
+              : data,
         };
       })
 
