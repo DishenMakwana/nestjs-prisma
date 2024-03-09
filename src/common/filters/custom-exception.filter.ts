@@ -19,6 +19,7 @@ export class CustomExceptionFilter implements ExceptionFilter {
   catch(exception: object, host: ArgumentsHost): void {
     const { httpAdapter } = this.httpAdapterHost;
     const ctx = host.switchToHttp();
+    const path = ctx.getRequest().url;
 
     console.error(CustomExceptionFilter.name, exception);
 
@@ -45,6 +46,7 @@ export class CustomExceptionFilter implements ExceptionFilter {
         message: errorMessage,
         stack,
         error: exception,
+        path,
       };
 
       httpAdapter.reply(ctx.getResponse(), responseBody, status);
@@ -61,14 +63,21 @@ export class CustomExceptionFilter implements ExceptionFilter {
           ? undefined
           : (exception as TypeError).stack ?? undefined;
 
+      const status =
+        (exception as TypeError).cause ?? HttpStatus.INTERNAL_SERVER_ERROR;
+
       httpAdapter.reply(
         ctx.getResponse(),
         {
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          statusCode:
+            (exception as any).name === 'JsonWebTokenError'
+              ? HttpStatus.UNAUTHORIZED
+              : status ?? HttpStatus.INTERNAL_SERVER_ERROR,
           success: false,
           message: messages ?? message.INTERNAL_SERVER_ERROR,
           stack,
           error: exception,
+          path,
         },
         HttpStatus.INTERNAL_SERVER_ERROR
       );

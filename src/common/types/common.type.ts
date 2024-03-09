@@ -25,7 +25,7 @@ export type Tokens = {
 export type Payload = {
   sub: string;
   email: string;
-  role: number;
+  role: string;
 };
 
 export type UserRegisterEvent = {

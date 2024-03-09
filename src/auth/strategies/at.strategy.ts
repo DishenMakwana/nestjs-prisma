@@ -41,7 +41,7 @@ export class ATStrategy extends PassportStrategy(Strategy, 'jwt') {
       },
     });
 
-    if (!user || !user.is_verified) {
+    if (!user || !user.is_verified || payload.role !== user.role) {
       throw new UnauthorizedException();
     }
 
