@@ -55,12 +55,20 @@ export class CustomExceptionFilter implements ExceptionFilter {
           ? undefined
           : (exception as TypeError).message ?? undefined;
 
+      const stack =
+        this.configService.getOrThrow<string>('NODE_ENV') ===
+        NODE_ENVIRONMENT.PRODUCTION
+          ? undefined
+          : (exception as TypeError).stack ?? undefined;
+
       httpAdapter.reply(
         ctx.getResponse(),
         {
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
           success: false,
           message: messages ?? message.INTERNAL_SERVER_ERROR,
+          stack,
+          error: exception,
         },
         HttpStatus.INTERNAL_SERVER_ERROR
       );
