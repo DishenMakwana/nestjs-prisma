@@ -18,7 +18,8 @@ export class LoginDto {
   @IsString()
   @Length(6, 255)
   @IsEmail({}, { message: message.validate.email })
-  email: 'string';
+  @Transform(({ value }) => value.toLowerCase())
+  email: string;
 
   @ApiProperty({
     default: 'Admin@123',
@@ -36,6 +37,7 @@ export class OTPDto {
   @IsString()
   @Length(6, 255)
   @IsEmail({}, { message: message.validate.email })
+  @Transform(({ value }) => value.toLowerCase())
   email: string;
 }
 
@@ -81,6 +83,7 @@ export class PasswordResetDto {
   @IsString()
   @Length(6, 255)
   @IsEmail({}, { message: message.validate.email })
+  @Transform(({ value }) => value.toLowerCase())
   email: string;
 
   @ApiProperty({
@@ -134,6 +137,7 @@ export class RegisterDto {
   @IsString()
   @Length(6, 255)
   @IsEmail({}, { message: message.validate.email })
+  @Transform(({ value }) => value.toLowerCase())
   email: string;
 }
 
