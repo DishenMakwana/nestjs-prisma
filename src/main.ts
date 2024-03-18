@@ -19,8 +19,8 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger:
       process.env.NEST_LOG === 'true'
-        ? ['error', 'warn', 'debug', 'verbose', 'log']
-        : ['error', 'warn', 'debug', 'verbose'],
+        ? ['error', 'warn', 'debug', 'verbose', 'log', 'fatal']
+        : ['error', 'warn', 'debug', 'verbose', 'fatal'],
   });
 
   const configService = app.get(ConfigService);

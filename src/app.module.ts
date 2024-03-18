@@ -11,6 +11,7 @@ import { MailModule } from './mail/mail.module';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { CustomExceptionFilter } from './common/filters';
+import { WinstonModule } from './winston/winston.module';
 
 export const modules = {
   Auth: AuthModule,
@@ -38,6 +39,7 @@ export const modules = {
     DatabaseModule,
     MailModule,
     AwsModule,
+    WinstonModule,
     ...Object.values(modules),
   ],
   providers: [
