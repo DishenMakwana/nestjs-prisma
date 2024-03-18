@@ -14,7 +14,7 @@ export class WinstonService {
     const transportsArray = [];
 
     if (logToFile) {
-      const logDirectory = path.join(__dirname, '../../logs');
+      const logDirectory = path.join(__dirname, '../../../logs');
       const fileTransport = new transports.File({
         filename: path.join(logDirectory, 'combined.log'),
         format: format.combine(
