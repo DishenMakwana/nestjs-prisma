@@ -50,10 +50,32 @@ export class WinstonService {
         originalConsoleLog.apply(console, args);
       };
 
+      // Intercept console.error and redirect it to the Winston logger
       const originalConsoleError = console.error;
       console.error = (...args: any[]) => {
         this.logger.log('error', { message: args }); // Log objects as JSON
         originalConsoleError.apply(console, args);
+      };
+
+      // Intercept console.warn and redirect it to the Winston logger
+      const originalConsoleWarn = console.warn;
+      console.warn = (...args: any[]) => {
+        this.logger.log('warn', { message: args }); // Log objects as JSON
+        originalConsoleWarn.apply(console, args);
+      };
+
+      // Intercept console.info and redirect it to the Winston logger
+      const originalConsoleInfo = console.info;
+      console.info = (...args: any[]) => {
+        this.logger.log('info', { message: args }); // Log objects as JSON
+        originalConsoleInfo.apply(console, args);
+      };
+
+      // Intercept console.debug and redirect it to the Winston logger
+      const originalConsoleDebug = console.debug;
+      console.debug = (...args: any[]) => {
+        this.logger.log('debug', { message: args }); // Log objects as JSON
+        originalConsoleDebug.apply(console, args);
       };
     }
   }
