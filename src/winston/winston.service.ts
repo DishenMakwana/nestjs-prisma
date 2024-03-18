@@ -11,12 +11,16 @@ export class WinstonService {
     const logToFile =
       this.configService.get<string>('WRITE_LOG_IN_FILE') === 'true';
 
-    const transportsArray = [];
-
     if (logToFile) {
-      const logDirectory = path.join(__dirname, '../../../logs');
+      const transportsArray = [];
+      const mainDirectory = process.cwd();
+      const logDirectory = path.join(mainDirectory, 'logs');
+
+      const currentDate = new Date().toISOString().split('T')[0];
+      const filename = path.join(logDirectory, `${currentDate}.log`);
+
       const fileTransport = new transports.File({
-        filename: path.join(logDirectory, 'combined.log'),
+        filename: filename,
         format: format.combine(
           format.timestamp({
             format: 'YYYY-MM-DD HH:mm:ss',
