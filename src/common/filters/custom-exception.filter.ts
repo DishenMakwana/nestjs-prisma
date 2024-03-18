@@ -19,9 +19,23 @@ export class CustomExceptionFilter implements ExceptionFilter {
   catch(exception: object, host: ArgumentsHost): void {
     const { httpAdapter } = this.httpAdapterHost;
     const ctx = host.switchToHttp();
-    const path = ctx.getRequest().url;
+    const request = ctx.getRequest();
 
-    console.error(CustomExceptionFilter.name, exception);
+    const path = request.url;
+    const requestData = {
+      body: request.body,
+      query: request.query,
+      params: request.params,
+      path: request.path,
+      method: request.method,
+    };
+
+    console.error(
+      CustomExceptionFilter.name,
+      exception,
+      ', Request Data: ',
+      requestData
+    );
 
     if (exception instanceof HttpException) {
       const status = exception.getStatus();
