@@ -8,6 +8,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { NODE_ENVIRONMENT, message } from '../assets';
 import { HttpAdapterHost } from '@nestjs/core';
+import { Request } from 'express';
 
 @Catch()
 export class CustomExceptionFilter implements ExceptionFilter {
@@ -28,6 +29,7 @@ export class CustomExceptionFilter implements ExceptionFilter {
       params: request.params,
       path: request.path,
       method: request.method,
+      token: this.extractTokenFromRequest(request),
     };
 
     console.error(
@@ -96,5 +98,15 @@ export class CustomExceptionFilter implements ExceptionFilter {
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
+  }
+
+  private extractTokenFromRequest(request: Request): string | undefined {
+    const authHeader = request.headers.authorization;
+
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      return authHeader.substring(7);
+    }
+
+    return undefined;
   }
 }
