@@ -40,3 +40,8 @@ export const EmailSubject = {
 export const CustomResponse = (data: any, message?: string) => {
   return message ? { message, data } : { data };
 };
+
+export const MAIL_SERVICE = {
+  SMTP: 'SMTP',
+  SES: 'SES',
+};

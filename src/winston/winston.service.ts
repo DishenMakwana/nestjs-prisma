@@ -9,7 +9,7 @@ export class WinstonService {
 
   constructor(private readonly configService: ConfigService) {
     const logToFile =
-      this.configService.get<string>('WRITE_LOG_IN_FILE') === 'true';
+      this.configService.getOrThrow<string>('WRITE_LOG_IN_FILE') === 'true';
 
     if (logToFile) {
       const transportsArray = [];
