@@ -6,6 +6,8 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from './../database/prisma.service';
 import * as bcrypt from 'bcryptjs';
+import * as fs from 'fs';
+import * as path from 'path';
 import { JwtService } from '@nestjs/jwt';
 import {
   ChangePasswordDto,
@@ -658,6 +660,35 @@ export class AuthService {
           access_token,
         };
       }
+    }
+  }
+
+  async handleDeleteOldLogs() {
+    const mainDirectory = process.cwd();
+    const logDirectory = path.join(mainDirectory, 'logs');
+    const currentDate = new Date();
+
+    const deleteTimeInterval =
+      +this.configService.getOrThrow<number>('DELETE_LOGS_TIME_INTERVAL') || 7;
+
+    // Calculate the date to compare for deletion
+    const deleteDate = new Date(currentDate);
+    deleteDate.setDate(deleteDate.getDate() - deleteTimeInterval);
+
+    try {
+      const files = fs.readdirSync(logDirectory);
+
+      for (const file of files) {
+        const filePath = path.join(logDirectory, file);
+        const fileStat = fs.statSync(filePath);
+
+        if (fileStat.mtime < deleteDate) {
+          fs.unlinkSync(filePath);
+          console.log(`Deleted old log file: ${file}`);
+        }
+      }
+    } catch (error) {
+      console.error('Error cleaning up log files:', error);
     }
   }
 

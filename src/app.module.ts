@@ -12,11 +12,13 @@ import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { CustomExceptionFilter } from './common/filters';
 import { WinstonModule } from './winston/winston.module';
+import { TasksModule } from './tasks/tasks.module';
 
 export const modules = {
   Auth: AuthModule,
   Admin: AdminModule,
   User: UserModule,
+  Task: TasksModule,
 };
 
 @Module({

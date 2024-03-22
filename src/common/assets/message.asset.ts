@@ -50,4 +50,7 @@ export const message = {
     USER_DETAILS: 'User details fetch successfully.',
     USER_LIST: 'User list fetch successfully.',
   },
+  task: {
+    HANDLE_DELETE_OLD_LOGS: 'Handle delete old logs.',
+  },
 };

@@ -28,4 +28,7 @@ export const apiDesc = {
     userDetails: 'User details',
     updateConfig: 'Update config',
   },
+  task: {
+    handleDeleteOldLogs: 'Handle delete old logs',
+  },
 };
