@@ -1,4 +1,4 @@
-import { SetMetadata, applyDecorators } from '@nestjs/common';
+import { HttpCode, SetMetadata, applyDecorators } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 export function ApiOperationResponse(
@@ -20,6 +20,7 @@ export function ApiOperationResponse(
       description: description || 'Success',
       type: responseType ?? undefined,
       isArray: isArray,
-    })
+    }),
+    HttpCode(statusCode)
   );
 }
