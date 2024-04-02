@@ -9,6 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { NODE_ENVIRONMENT, message } from '../assets';
 import { HttpAdapterHost } from '@nestjs/core';
 import { Request } from 'express';
+import { getRequestInfo } from '../interceptors';
 
 @Catch()
 export class CustomExceptionFilter implements ExceptionFilter {
@@ -30,6 +31,7 @@ export class CustomExceptionFilter implements ExceptionFilter {
       path: request.path,
       method: request.method,
       token: this.extractTokenFromRequest(request),
+      requestInfo: getRequestInfo(request),
     };
 
     console.error(
