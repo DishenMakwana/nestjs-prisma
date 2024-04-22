@@ -22,7 +22,7 @@ export const adminSeed = async () => {
     };
 
     await prisma.user.upsert({
-      where: { id: 1 },
+      where: { email: process.env.ADMIN_EMAIL },
       update: adminData,
       create: adminData,
     });
