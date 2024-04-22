@@ -628,6 +628,7 @@ export class AuthService {
           id: userExist?.id,
         },
         data: {
+          is_verified: true,
           provider: body.provider,
           provider_id: body.providerId,
         },
