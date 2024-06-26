@@ -1,6 +1,8 @@
 export const message = {
   SUCCESS_RESPONSE: 'Success.',
   INTERNAL_SERVER_ERROR: 'Internal server error.',
+  FORBIDDEN_RESOURCE:
+    'You do not have the required role/permission to access this resource.',
   validate: {
     email: 'Please enter valid email.',
     password:

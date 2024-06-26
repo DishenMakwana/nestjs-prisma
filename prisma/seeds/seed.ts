@@ -6,4 +6,13 @@ const seed = async () => {
   await adminSeed();
 };
 
-seed();
+(async () => {
+  try {
+    await seed();
+    console.log('Seed successfully completed.');
+    process.exit(0);
+  } catch (error) {
+    console.error('Seed failed: ', error);
+    process.exit(1);
+  }
+})();

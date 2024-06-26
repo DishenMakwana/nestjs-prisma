@@ -1,7 +1,13 @@
-import { CanActivate, Injectable, ExecutionContext } from '@nestjs/common';
+import {
+  CanActivate,
+  Injectable,
+  ExecutionContext,
+  ForbiddenException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Observable } from 'rxjs';
 import { Role } from '@prisma/client';
+import { message } from '../assets';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -33,6 +39,10 @@ export class RolesGuard implements CanActivate {
 
     const userRole: Role = request.user.role;
 
-    return requiredRoles.includes(userRole);
+    if (!requiredRoles.includes(userRole)) {
+      throw new ForbiddenException(message.FORBIDDEN_RESOURCE);
+    }
+
+    return true;
   }
 }
